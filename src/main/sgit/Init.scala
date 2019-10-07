@@ -3,8 +3,6 @@ package main.sgit
 import java.io.File
 
 import main.api.FileApi
-import main.sgit.commands.status
-import main.sgit.objects.Blob
 
 object Init {
 
@@ -65,9 +63,7 @@ object Init {
   }
 
   def main(args: Array[String]): Unit = {
-    status.add(new File("/home/marouane/Desktop/IG5/Sgit/src/main/sgit/test.txt"))
-    val blobTest = status.readContentBlob(new File("/home/marouane/Desktop/IG5/Sgit/.sgit/objects/40/0b114b3e48bd8b44ba48c026b4356b566dfc3"))
-    println(blobTest.content)
+    println(FileApi.getAllSubDir(new File(System.getProperty("user.dir"))))
   }
 
 }
