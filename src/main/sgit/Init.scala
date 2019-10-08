@@ -63,7 +63,7 @@ object Init {
   }
 
   def main(args: Array[String]): Unit = {
-    println(FileApi.getAllSubDir(new File(System.getProperty("user.dir"))))
+    println(FileApi.getFilesAllDir(new File(System.getProperty("user.dir"))))
   }
 
 }

@@ -20,7 +20,7 @@ object FileApi {
   def encodeSha(file: File): String =
   {
     // We choose to set our digester to SHA1
-    val messageDigest = MessageDigest.getInstance("SHA1");
+    val messageDigest = MessageDigest.getInstance("SHA1")
     // We affect to our buffer a size of 8192 which allows us to not keep a lot of bytes in our memory, but still
     // be quite fast (good ratio speed/memory consumption)
     val buffer = new Array[Byte](8192)
@@ -92,4 +92,26 @@ object FileApi {
      // result as an empty list
       tailRecGetAllSubDir(getSubDir(dir), Nil)
     }
+
+  // This method allows us to have all the file in a single directory
+  def getFilesSingleDir(dir: File): List[File] =  dir.listFiles.filter(_.isFile).toList
+
+  // This method allows us to have all the file in all of our directories
+  def getFilesAllDir(dir: File): List[File] =
+  {
+    // Here, we use another tailrec method thanks to our previous method "getAllSubDir" which allows us to have
+    // all of our directories
+    @scala.annotation.tailrec
+    def tailRecGetAllFiles(listOfDirToChek: List[File], result: List[File]): List[File] = listOfDirToChek match
+      {
+        // If our list of directories is not empty, we get all the file of our first directory and do the operation
+        // again with the rest of our list
+      case head :: tail =>
+        tailRecGetAllFiles(tail, getFilesSingleDir(head) ::: result)
+        // If we hit the end of our list, we simply return our result
+      case _ => result
+    }
+    // We initiate our first recursion by getting all the directories and set our result as an empty list
+    tailRecGetAllFiles(getAllSubDir(dir), Nil)
+  }
 }
