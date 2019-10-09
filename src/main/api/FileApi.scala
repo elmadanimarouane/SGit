@@ -3,6 +3,8 @@ package main.api
 import java.io._
 import java.security.{DigestInputStream, MessageDigest}
 
+import scala.io.Source
+
 
 object FileApi {
   // This method allows us to write in a given file
@@ -97,8 +99,9 @@ object FileApi {
   def getFilesSingleDir(dir: File): List[File] =  dir.listFiles.filter(_.isFile).toList
 
   // This method allows us to have all the file in all of our directories
-  def getFilesAllDir(dir: File): List[File] =
+  def getFilesAllDir(dir: String): List[File] =
   {
+    val dirFile = new File(dir)
     // Here, we use another tailrec method thanks to our previous method "getAllSubDir" which allows us to have
     // all of our directories
     @scala.annotation.tailrec
@@ -112,6 +115,19 @@ object FileApi {
       case _ => result
     }
     // We initiate our first recursion by getting all the directories and set our result as an empty list
-    tailRecGetAllFiles(getAllSubDir(dir), Nil)
+    tailRecGetAllFiles(getAllSubDir(dirFile), Nil)
   }
+
+  // This method allows us to get a list of file from each line of a file
+  def listFromFile(file: String): List[File] =
+    {
+      // We get our source file
+      val source = Source.fromFile(new File(file))
+      // We keep each lines as a file
+      val result = (for (line <- source.getLines()) yield new File(line)).toList
+      // We close our source
+      source.close()
+      // We return the result
+      result
+    }
 }

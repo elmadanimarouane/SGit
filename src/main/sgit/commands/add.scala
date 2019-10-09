@@ -33,7 +33,6 @@ object add {
         val newObjectFile = new File(s"$newObjectPath/$restShaValue")
         newObjectFile.createNewFile()
         // After that, we write our content it in our newly created file
-        val writer = new PrintWriter(newObjectFile)
         try
           {
             // We get all the content of our file added
@@ -41,13 +40,14 @@ object add {
             for(line <- bufferFile.getLines())
               {
                 // We copy it in our object file
-                writer.write(line + "\n")
+                FileApi.utilWriter(newObjectFile.getPath,line)
               }
             // We close our buffer
             bufferFile.close()
           }
-        // We close our Writer
-        writer.close()
+        // We write the path of our new file in our index file
+        val indexPath = System.getProperty("user.dir") + "/.sgit/index"
+        FileApi.utilWriter(indexPath, file.getPath)
       }
     else
       {

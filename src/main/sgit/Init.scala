@@ -3,6 +3,7 @@ package main.sgit
 import java.io.File
 
 import main.api.FileApi
+import main.sgit.commands.{add, status}
 
 object Init {
 
@@ -44,6 +45,9 @@ object Init {
       val descriptionFile = new File(s"$currSgitDir/description")
       descriptionFile.createNewFile()
       FileApi.utilWriter(s"$currSgitDir/description","Unnamed repository; edit this file 'description' to name the repository.")
+      // Index file
+      val indexFile = new File(s"$currSgitDir/index")
+      indexFile.createNewFile()
     }
 
   private def initSgitDir(): Unit =
@@ -63,7 +67,7 @@ object Init {
   }
 
   def main(args: Array[String]): Unit = {
-    println(FileApi.getFilesAllDir(new File(System.getProperty("user.dir"))))
+    status.status()
   }
 
 }
