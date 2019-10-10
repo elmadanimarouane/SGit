@@ -1,14 +1,14 @@
 package main.sgit.commands
 
-import java.io.{File, PrintWriter}
+import java.io.File
 
 import main.api.FileApi
 
 import scala.io.Source
-import main.sgit.objects.Blob
 
 object add {
 
+  // This method allows us to add a single file
   def add(file: File): Unit =
   {
     // We first convert our file into a SHA string
@@ -45,13 +45,26 @@ object add {
             // We close our buffer
             bufferFile.close()
           }
-        // We write the path of our new file in our index file
+
         val indexPath = System.getProperty("user.dir") + "/.sgit/index"
-        FileApi.utilWriter(indexPath, file.getPath)
+        // We check our index file if our path is not already in it (in the case of adding a file that we modified)
+        val pathsStoredInIndex = FileApi.listFromFile(indexPath)
+        if(!pathsStoredInIndex.contains(file))
+          {
+            // We write the path of our new file and its SHA in our index file
+            FileApi.utilWriter(indexPath, shaValue + " " + file.getPath)
+          }
       }
     else
       {
         println("This file was already created yo !")
       }
   }
+
+  // This method allows us to add all the file of our project (excluding our .sgit directory)
+  def addAll(): Unit =
+    {
+      val allFiles = FileApi.getFilesAllDir(System.getProperty("user.dir"))
+      allFiles.map(file => add(file))
+    }
 }

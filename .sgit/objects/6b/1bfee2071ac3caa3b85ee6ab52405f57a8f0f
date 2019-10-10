@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="1fff4cf8-9b22-4394-9586-bbe53d5a0e28" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/src/main/sgit/objects/Tree.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.sgit/index" beforeDir="false" afterPath="$PROJECT_DIR$/.sgit/index" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.sgit/objects/40/0b114b3e48bd8b44ba48c026b4356b566dfc3" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Sgit/main/api/FileApi$.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Sgit/main/api/FileApi$.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Sgit/main/sgit/commands/status$.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Sgit/main/sgit/commands/status$.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Sgit/main/sgit/objects/Blob$.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Sgit/main/sgit/objects/Blob$.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Sgit/main/sgit/objects/Blob.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Sgit/main/sgit/objects/Blob.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Sgit/main/test.txt" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Sgit/main/test.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/api/FileApi.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/api/FileApi.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/sgit/Init.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/sgit/Init.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/sgit/commands/add.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/sgit/commands/add.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/sgit/commands/status.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/sgit/commands/status.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/sgit/objects/Blob.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/sgit/objects/Blob.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/test.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/test.txt" afterDir="false" />
+    </list>
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CodeStyleSettingsInfer">
+    <option name="done" value="true" />
+  </component>
+  <component name="ComposerSettings">
+    <execution>
+      <executable />
+    </execution>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="IgnoredFileRootStore">
+    <option name="generatedRoots">
+      <set>
+        <option value="$PROJECT_DIR$/.idea" />
+      </set>
+    </option>
+  </component>
+  <component name="ProjectCodeStyleSettingsMigration">
+    <option name="version" value="1" />
+  </component>
+  <component name="ProjectId" id="1RgcxcwbYtqq9PmSAcE2M6tsLvH" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="PropertiesComponent">
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="aspect.path.notification.shown" value="true" />
+    <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
+    <property name="nodejs_npm_path_reset_for_default_project" value="true" />
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="RunManager">
+    <configuration name="Init" type="Application" factoryName="Application" temporary="true">
+      <option name="MAIN_CLASS_NAME" value="main.sgit.Init" />
+      <module name="Sgit" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="main.sgit.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Application.Init" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="1fff4cf8-9b22-4394-9586-bbe53d5a0e28" name="Default Changelist" comment="" />
+      <created>1570092427256</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1570092427256</updated>
+      <workItem from="1570092433218" duration="6339000" />
+      <workItem from="1570268321835" duration="20288000" />
+      <workItem from="1570354104789" duration="11066000" />
+      <workItem from="1570373154326" duration="9325000" />
+      <workItem from="1570445386362" duration="6319000" />
+      <workItem from="1570453493125" duration="2156000" />
+      <workItem from="1570478711746" duration="5732000" />
+      <workItem from="1570565581370" duration="4616000" />
+      <workItem from="1570609033610" duration="6371000" />
+      <workItem from="1570640123297" duration="11884000" />
+      <workItem from="1570697076106" duration="3274000" />
+      <workItem from="1570738724347" duration="2689000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>

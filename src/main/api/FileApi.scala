@@ -82,7 +82,7 @@ object FileApi {
           // our result. If it's the opposite, we keep our head with our result since we need to check the
           // subdirectories in our directory. We also make sure to exclude our .sgit directory since we don't need
           // to check it
-          val recursiveList = if(directories.isEmpty || (head.getPath contains ".sgit")) result else head :: result
+          val recursiveList = if(directories.isEmpty || (head.getPath contains ".sgit") || (head.getPath contains ".git") ||(head.getPath contains "out")) result else head :: result
           // We make the recursion again but this time with the tail with the subdirectories that we found earlier.
           // If we didn't find any subdirectory, then our value "directories" is empty and we simply loop in our tail.
           // Still, we keep our result in the recursiveList
@@ -124,10 +124,19 @@ object FileApi {
       // We get our source file
       val source = Source.fromFile(new File(file))
       // We keep each lines as a file
-      val result = (for (line <- source.getLines()) yield new File(line)).toList
+      val result = (for (line <- source.getLines()) yield new File(line.substring(41,line.length))).toList
       // We close our source
       source.close()
       // We return the result
       result
     }
+
+  // This method allows us to get a Set of the files kept in our Index file
+  def getListOfKeptFiles: Set[File] = {
+    // We get the path of our project
+    val pathProject = System.getProperty("user.dir")
+    // We get all of our path kept in our index file
+    FileApi.listFromFile(pathProject + "/.sgit/index").toSet
+
+  }
 }
