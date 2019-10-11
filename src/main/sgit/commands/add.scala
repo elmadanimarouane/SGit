@@ -48,7 +48,7 @@ object add {
 
         val indexPath = System.getProperty("user.dir") + "/.sgit/index"
         // We check our index file if our path is not already in it (in the case of adding a file that we modified)
-        val pathsStoredInIndex = FileApi.listFromFile(indexPath)
+        val pathsStoredInIndex = FileApi.listFromFile(indexPath, 41)
         if(!pathsStoredInIndex.contains(file))
           {
             // We write the path of our new file and its SHA in our index file
@@ -65,6 +65,6 @@ object add {
   def addAll(): Unit =
     {
       val allFiles = FileApi.getFilesAllDir(System.getProperty("user.dir"))
-      allFiles.map(file => add(file))
+      allFiles.foreach(file => add(file))
     }
 }

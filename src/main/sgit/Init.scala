@@ -3,7 +3,7 @@ package main.sgit
 import java.io.File
 
 import main.api.FileApi
-import main.sgit.commands.{add, status}
+import main.sgit.commands.{add, diff, status}
 
 object Init {
 
@@ -67,7 +67,7 @@ object Init {
   }
 
   def main(args: Array[String]): Unit = {
-    status.status()
+    diff.diff()
   }
 
 }

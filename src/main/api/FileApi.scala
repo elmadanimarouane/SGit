@@ -96,7 +96,7 @@ object FileApi {
     }
 
   // This method allows us to have all the file in a single directory
-  def getFilesSingleDir(dir: File): List[File] =  dir.listFiles.filter(_.isFile).toList
+  def getFilesSingleDir(dir: String): List[File] =  new File(dir).listFiles.filter(_.isFile).toList
 
   // This method allows us to have all the file in all of our directories
   def getFilesAllDir(dir: String): List[File] =
@@ -110,7 +110,7 @@ object FileApi {
         // If our list of directories is not empty, we get all the file of our first directory and do the operation
         // again with the rest of our list
       case head :: tail =>
-        tailRecGetAllFiles(tail, getFilesSingleDir(head) ::: result)
+        tailRecGetAllFiles(tail, getFilesSingleDir(head.getPath) ::: result)
         // If we hit the end of our list, we simply return our result
       case _ => result
     }
@@ -118,13 +118,17 @@ object FileApi {
     tailRecGetAllFiles(getAllSubDir(dirFile), Nil)
   }
 
-  // This method allows us to get a list of file from each line of a file
-  def listFromFile(file: String): List[File] =
+  // This method allows us to get a list of file from each line of a file. Since it is used to get the content of our
+  // index file which contains in every line a SHA and the path of a file, we add as attributes which substring of each
+  // line we would like to keep. If we don't indicate the last attribute of our substring, it then means that we want
+  // our substring to stop until the last character of the line
+  def listFromFile(file: String, firstSubstring: Int, lastSubString: Int = -1): List[File] =
     {
       // We get our source file
       val source = Source.fromFile(new File(file))
       // We keep each lines as a file
-      val result = (for (line <- source.getLines()) yield new File(line.substring(41,line.length))).toList
+      val result = (for (line <- source.getLines()) yield new File(line.substring(firstSubstring,
+        if(lastSubString == -1) line.length else lastSubString))).toList
       // We close our source
       source.close()
       // We return the result
@@ -136,7 +140,21 @@ object FileApi {
     // We get the path of our project
     val pathProject = System.getProperty("user.dir")
     // We get all of our path kept in our index file
-    FileApi.listFromFile(pathProject + "/.sgit/index").toSet
-
+    FileApi.listFromFile(pathProject + "/.sgit/index", 41).toSet
   }
+
+  // This method allows us to get a list of our SHA tracked
+  def getFullListOfKeptFiles: List[File] =
+    {
+      // We get the path of our project
+      val pathProject = System.getProperty("user.dir")
+      // We get all of our SHA kept in our index file
+      FileApi.listFromFile(pathProject + "/.sgit/index", 0)
+    }
+
+  // This method allows us to compare two file by giving as attribute the list of each line of our two files
+  def difBetweenTwoFiles(file1: List[String], file2: List[String]): Unit =
+    {
+
+    }
 }
