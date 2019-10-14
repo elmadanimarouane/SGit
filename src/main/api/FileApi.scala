@@ -122,13 +122,13 @@ object FileApi {
   // index file which contains in every line a SHA and the path of a file, we add as attributes which substring of each
   // line we would like to keep. If we don't indicate the last attribute of our substring, it then means that we want
   // our substring to stop until the last character of the line
-  def listFromFile(file: String, firstSubstring: Int, lastSubString: Int = -1): List[File] =
+  def listFromFile(file: String, firstSubstring: Int, lastSubString: Int = -1): List[String] =
     {
       // We get our source file
       val source = Source.fromFile(new File(file))
       // We keep each lines as a file
-      val result = (for (line <- source.getLines()) yield new File(line.substring(firstSubstring,
-        if(lastSubString == -1) line.length else lastSubString))).toList
+      val result = (for (line <- source.getLines()) yield line.substring(firstSubstring,
+        if(lastSubString == -1) line.length else lastSubString)).toList
       // We close our source
       source.close()
       // We return the result
@@ -140,11 +140,12 @@ object FileApi {
     // We get the path of our project
     val pathProject = System.getProperty("user.dir")
     // We get all of our path kept in our index file
-    FileApi.listFromFile(pathProject + "/.sgit/index", 41).toSet
+    val listOfPathFile = listFromFile(pathProject + "/.sgit/index",41)
+    listOfPathFile.map(x => new File(x)).toSet
   }
 
   // This method allows us to get a list of our SHA tracked
-  def getFullListOfKeptFiles: List[File] =
+  def getFullListOfKeptFiles: List[String] =
     {
       // We get the path of our project
       val pathProject = System.getProperty("user.dir")

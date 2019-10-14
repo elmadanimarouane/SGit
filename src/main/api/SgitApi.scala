@@ -20,11 +20,54 @@ object SgitApi {
     // We convert our list of tracked files into lists of SHA1 and we keep only the first two char
     val listOfTrackedSha = listOfTrackedFiles.map(file => new Blob(file, FileApi.encodeSha(file).substring(0,2)))
     // We get all of our directories from our "objects" folder
-    val listDirOfObjects = FileApi.getSubDir(new File(pathProject + "/.sgit/objects"))
+    val listDirOfObjects = FileApi.getSubDir(new File(pathProject + "/.sgit/objects/blobs"))
     // We keep only the files that have been modified (and therefore, we keep only the files that have a SHA not
     // kept in our object directory)
     val listOfModifiedFilesBoolean = listOfTrackedSha.map(x => listDirOfObjects.map(_.getName).contains(x.sha))
     listOfTrackedSha.zip(listOfModifiedFilesBoolean).filter(x => !x._2)
   }
 
+  // This method allows us to get our branch file
+  def getBranchFile: File =
+    {
+      // We get the path of our project
+      val projectPath = System.getProperty("user.dir") + "/.sgit/"
+      // We first retrieve in which branch we are on
+      val actualBranch = FileApi.listFromFile(projectPath + "HEAD", 5).head
+      // We get the directory of our branch and initiate a file with it
+      new File(projectPath + actualBranch)
+    }
+
+  // This method allows us to update our ref file pointing to the last commit
+  def updateRef(sha: String): Unit =
+    {
+      // We get our branch file
+      val branchFile = getBranchFile
+      // We check if it exists
+      if(branchFile.isFile)
+        {
+          // If it is the case, we have to change the already stored sha value. To do so, we first create a temp file
+          val tempFile = new File("/tmp/tempRef.txt")
+          // We write in it our new sha value
+          FileApi.utilWriter(tempFile.getPath, sha)
+          // We rename our temp file as our ref file
+          tempFile.renameTo(branchFile)
+        }
+      else
+        {
+          // If it is not the case, we create it and write in it the sha of our commit
+          println(branchFile.getPath)
+          branchFile.createNewFile()
+          FileApi.utilWriter(branchFile.getPath, sha)
+        }
+    }
+
+  // This method allows us to get the SHA value of the last commit done
+  def getCurrentCommit: String =
+    {
+      // We get our branch file
+      val branchFile = getBranchFile
+      // We get the SHA stored in it and return it
+      FileApi.listFromFile(branchFile.getPath, 0).head
+    }
 }

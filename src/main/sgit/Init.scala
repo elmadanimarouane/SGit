@@ -3,7 +3,7 @@ package main.sgit
 import java.io.File
 
 import main.api.FileApi
-import main.sgit.commands.{add, diff, status}
+import main.sgit.commands.{add, branch, commit, diff, status}
 
 object Init {
 
@@ -24,6 +24,15 @@ object Init {
       // Objects store
       val objectsDir = new File(s"$currSgitDir/objects")
       objectsDir.mkdir()
+      // Blob store
+      val blobDir = new File(s"$currSgitDir/objects/blobs")
+      blobDir.mkdir()
+      // Tree store
+      val treeDir = new File(s"$currSgitDir/objects/trees")
+      treeDir.mkdir()
+      // Commit store
+      val commitDir = new File(s"$currSgitDir/objects/commits")
+      commitDir.mkdir()
       // Reference store
       val refsDir = new File(s"$currSgitDir/refs")
       refsDir.mkdir()
@@ -67,7 +76,11 @@ object Init {
   }
 
   def main(args: Array[String]): Unit = {
-    diff.diff()
+    // status.status()
+    // initSgitDir()
+    // add.add(new File("/home/marouane/Desktop/IG5/Sgit/src/main/test.txt"))
+    // commit.commit()
+    branch.branch("My new branch")
   }
 
 }

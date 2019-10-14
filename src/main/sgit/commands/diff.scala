@@ -1,5 +1,7 @@
 package main.sgit.commands
 
+import java.io.File
+
 import main.api.{FileApi, SgitApi}
 
 object diff {
@@ -17,11 +19,11 @@ object diff {
         {
           blob <- listOfModifiedBlob
           file <- listOfTrackedFiles
-        if file.getPath.contains(blob.content.getPath)
+        if file.contains(blob.content.getPath)
         }
-        yield (blob,file)
+        yield (blob,new File(file))
       // We get the path of our objects directory
-      val currentObjectPath = System.getProperty("user.dir") + "/.sgit/objects/"
+      val currentObjectPath = System.getProperty("user.dir") + "/.sgit/objects/blobs/"
       // We create a list of our initial data based on their content stored in our objects directory
       val initialData = combinedList.map(x => FileApi.listFromFile(currentObjectPath + x._2.getPath.substring(0,2)
         + "/" + x._2.getPath.substring(3,40),0))

@@ -19,7 +19,7 @@ object add {
 
     // We check if a directory with the same two char of our SHA exist. If it is the case, we don't do something. Else,
     // We initiate the add process
-    val projectDir = System.getProperty("user.dir") + "/.sgit/objects"
+    val projectDir = System.getProperty("user.dir") + "/.sgit/objects/blobs"
     val objectDir = new File(projectDir)
     if(!objectDir.listFiles().map(_.getName).contains(shaValueFirstTwo))
       {
@@ -49,15 +49,36 @@ object add {
         val indexPath = System.getProperty("user.dir") + "/.sgit/index"
         // We check our index file if our path is not already in it (in the case of adding a file that we modified)
         val pathsStoredInIndex = FileApi.listFromFile(indexPath, 41)
-        if(!pathsStoredInIndex.contains(file))
+        // We convert our list of string into a list of file
+        if(!pathsStoredInIndex.contains(file.getPath))
           {
             // We write the path of our new file and its SHA in our index file
             FileApi.utilWriter(indexPath, shaValue + " " + file.getPath)
           }
-      }
-    else
-      {
-        println("This file was already created yo !")
+          // If the path of our file is already stored in our index file, we check if we want to add a new version
+          // of our file
+        else
+          {
+            // We create a source from our index file
+            val indexSource = Source.fromFile(new File(indexPath))
+            // We create a temporary new file
+            val tempFile = new File("/tmp/tempIndex.txt")
+            // We check if the SHA is already registered in our index file. If it is not the case, we modify it
+            indexSource.getLines().map {
+              x =>
+                if (x.contains(file.getPath) && !x.contains(shaValue)) {
+                  shaValue + " " + file.getPath
+                }
+                else {
+                  x
+                }
+            }
+                .foreach(x => FileApi.utilWriter(tempFile.getPath,x))
+            // We close our source from the index
+            indexSource.close()
+            // We rename our temp file as our new index file
+            tempFile.renameTo(new File(indexPath))
+          }
       }
   }
 
