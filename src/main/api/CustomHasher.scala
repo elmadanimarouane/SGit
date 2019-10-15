@@ -37,6 +37,4 @@ object CustomHasher {
       digest(objectInBytes, MessageDigest.getInstance("SHA1"))
     }
 
-
-
 }

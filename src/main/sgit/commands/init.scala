@@ -1,11 +1,10 @@
-package main.sgit
+package main.sgit.commands
 
 import java.io.File
 
 import main.api.FileApi
-import main.sgit.commands.{add, branch, commit, diff, status}
 
-object Init {
+object init {
 
   private def isSgitDir(directoryName: String): Boolean =
   {
@@ -57,6 +56,12 @@ object Init {
       // Index file
       val indexFile = new File(s"$currSgitDir/index")
       indexFile.createNewFile()
+      // Log directory
+      val logDir = new File(s"$currSgitDir/log")
+      logDir.mkdir()
+      // Log file
+      val logFile = new File(s"$currSgitDir/log/log")
+      logFile.createNewFile()
     }
 
   private def initSgitDir(): Unit =
@@ -78,9 +83,12 @@ object Init {
   def main(args: Array[String]): Unit = {
     // status.status()
     // initSgitDir()
-    // add.add(new File("/home/marouane/Desktop/IG5/Sgit/src/main/test.txt"))
-    // commit.commit()
-    branch.branch("My new branch")
+    // add.add(new File("/home/marouane/Desktop/IG5/Sgit/src/main/test2.txt"))
+    // commit.commit("New Commit")
+    // log.log()
+    // branch.listBranches()
+    //  branch.branch("Test branch")
+    // tag.tag("First tag")
   }
 
 }

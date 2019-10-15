@@ -2,7 +2,8 @@ package main.sgit.commands
 
 import java.io.File
 
-import main.api.{CustomHasher, FileApi, ObjectApi, SgitApi}
+import scala.io.StdIn.readLine
+import main.api.{CustomHasher, FileApi, ObjectApi, SgitApi, TimeApi}
 import main.sgit.objects.{Blob, Tree}
 
 case class commit (shaValue: String, associatedTree: Tree, commitMessage: String = null, subCommit: commit = null)
@@ -46,6 +47,23 @@ object commit {
     val commitFile = ObjectApi.CreateObject("commits", shaValue)
     // We write the sha of our associated tree in it
     FileApi.utilWriter(commitFile, "tree " + associatedTree.sha)
+    // We get the name of our committer
+    println("Please enter your name so it will be associated with your commit : ")
+    val committerName = readLine()
+    // We write the name of our committer to our file. If no name was given, we take the name of the user from its
+    // system
+    if(committerName.isEmpty)
+      {
+        FileApi.utilWriter(commitFile, "author " + System.getenv("USER"))
+      }
+    else
+    {
+      FileApi.utilWriter(commitFile, "author " + committerName)
+    }
+    // We write the current date so we can get back later the date of the commit in our log
+    FileApi.utilWriter(commitFile, TimeApi.getDate + "\n")
+    // We get the list of our commits directories
+    val commitsDir = FileApi.getSubDir(new File(System.getProperty("user.dir") + "/.sgit/objects/commits"))
     // We write our commit message if one was given
     if(commitMessage != null)
       {
@@ -54,10 +72,8 @@ object commit {
       // Else, we simply write the number of the commit
     else
       {
-        // We get the list of our commits directories
-        val commitsDir = FileApi.getSubDir(new File(System.getProperty("user.dir") + "/.sgit/objects/commits"))
         // We write our default commit message
-        FileApi.utilWriter(commitFile, "Commit number " + (commitsDir.size))
+        FileApi.utilWriter(commitFile, "Commit number " + commitsDir.size)
       }
     // If we have a sub commit, we add it aswell in our file
     if(shaSubCommit != null)
@@ -66,5 +82,32 @@ object commit {
       }
     // We then need to put in our ref file the sha of our new commit
     SgitApi.updateRef(shaValue)
+    // We add our commit to our log
+    log.createLog(shaValue, if (commitMessage == null) "Commit number " + commitsDir.size else commitMessage,
+      if(committerName.isEmpty) System.getenv("USER") else committerName, shaSubCommit)
   }
+
+  // This method allows us, with a sha, to retrieve the name of the commit associated with it
+  def getCommitName(sha: String): String =
+    {
+      // We get the path of our commit
+      val commitPath = System.getProperty("user.dir") + "/.sgit/objects/commits/" + sha.substring(0,2) + "/" +
+      sha.substring(2)
+      // We read the content of it and convert our list to a vector since it is faster to index it, which we will do
+      // later
+      val commitFile = FileApi.listFromFile(commitPath,0).toVector
+      // We return the 5th line which correspond to our commit message and remove the tab
+      commitFile(4)
+    }
+
+  // This method allows us to get all of our commits
+  def getCommits: List[String] =
+    {
+      // We get the path of our commits
+      val commitsPath = System.getProperty("user.dir") + "/.sgit/objects/commits"
+      // We get all of our directories in our commit directory
+      val commitsDir = FileApi.getSubDir(new File(commitsPath))
+      // We then get all of our commits
+      commitsDir.map(x => x.getName + FileApi.getFilesSingleDir(x.getPath).head.getName)
+    }
 }
