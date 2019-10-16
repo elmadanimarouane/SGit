@@ -26,7 +26,7 @@ object diff {
       val currentObjectPath = System.getProperty("user.dir") + "/.sgit/objects/blobs/"
       // We create a list of our initial data based on their content stored in our objects directory
       val initialData = combinedList.map(x => FileApi.listFromFile(currentObjectPath + x._2.getPath.substring(0,2)
-        + "/" + x._2.getPath.substring(3,40),0))
+        + "/" + x._2.getPath.substring(2,40),0))
       // We create a list of our data based on their current content
       val finalData = combinedList.map(x => FileApi.listFromFile(x._1.content.getPath,0))
       // We merge the list of our blob with our list of initial data and final data so we can know which file
@@ -42,16 +42,60 @@ object diff {
                 {
                   if(y._1 == y._2)
                     {
-                      println(y._1)
+                      println("   " + y._1)
                     }
                   else
                     {
-                      println(Console.RED + " - " + y._2)
-                      println(Console.GREEN + " + " + y._1)
-                      print(Console.WHITE)
+                      // We check if our new file is smaller than our previous, which means some lines were removed
+                      if(x._2.size >= x._3.size)
+                        {
+                          // If our new line is not in the old file
+                          if((combinedListOfData.reverse.head._1 != y._1 || !y._1.isEmpty) && !x._2.contains(y._1))
+                          {
+                            // This means the line was added
+                            println(Console.GREEN + " + " + y._1)
+                            print(Console.WHITE)
+                          }
+                          // If our old line is not in the new file
+                          if(!x._3.contains(y._2))
+                          {
+                            // This means the line was removed
+                            println(Console.RED + " - " + y._2)
+                            print(Console.WHITE)
+                          }
+                          // If our new line is in the old file
+                          else
+                          {
+                            // This means the line was simply moved
+                            println("   " + y._2)
+                          }
+                        }
+                        //Otherwise, this means that some lines were added
+                      else
+                        {
+                          // If our new line is not in the old file
+                          if(!x._2.contains(y._1))
+                          {
+                            // This means the line was added
+                            println(Console.GREEN + " + " + y._1)
+                            print(Console.WHITE)
+                          }
+                          // If our old line is not in the new file
+                          if((combinedListOfData.reverse.head._2 != y._2 || !y._2.isEmpty) && !x._3.contains(y._2))
+                          {
+                            // This means the line was removed
+                            println(Console.RED + " - " + y._2)
+                            print(Console.WHITE)
+                          }
+                          // If our new line is in the old file
+                          if(x._2.contains(y._1))
+                          {
+                            // This means the line was simply moved
+                            println("   " + y._1)
+                          }
+                        }
                     }
                 }
         }
     }
-
 }

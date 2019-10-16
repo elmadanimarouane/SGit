@@ -56,18 +56,29 @@ object SgitApi {
       else
         {
           // If it is not the case, we create it and write in it the sha of our commit
-          println(branchFile.getPath)
           branchFile.createNewFile()
           FileApi.utilWriter(branchFile.getPath, sha)
         }
     }
 
   // This method allows us to get the SHA value of the last commit done
-  def getCurrentCommit: String =
+  def getCurrentCommit: List[String] =
     {
       // We get our branch file
       val branchFile = getBranchFile
       // We get the SHA stored in it and return it
-      FileApi.listFromFile(branchFile.getPath, 0).head
+      FileApi.listFromFile(branchFile.getPath, 0)
+    }
+
+  // This method allows us to change our branch
+  def changeBranch(branchName: String): Unit =
+    {
+      // We get our HEAD file
+      val headFile = new File(System.getProperty("user.dir") + "/.sgit/HEAD")
+      // We create a temporary file where we write our new pointer to our branch
+      val tmpFile = new File("/tmp/tempHEAD")
+      FileApi.utilWriter(tmpFile.getPath, s"ref: refs/heads/$branchName")
+      // We actualize our HEAD file
+      tmpFile.renameTo(headFile)
     }
 }

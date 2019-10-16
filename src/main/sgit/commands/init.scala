@@ -83,12 +83,14 @@ object init {
   def main(args: Array[String]): Unit = {
     // status.status()
     // initSgitDir()
-    // add.add(new File("/home/marouane/Desktop/IG5/Sgit/src/main/test2.txt"))
-    // commit.commit("New Commit")
+    // add.add(new File("/home/marouane/Desktop/IG5/Sgit/src/main/test50.txt"))
+    // commit.commit("Adding Mamak")
     // log.log()
     // branch.listBranches()
-    //  branch.branch("Test branch")
+    // branch.branch("Test branch")
     // tag.tag("First tag")
+    // checkout.checkout("master")
+    diff.diff()
   }
 
 }

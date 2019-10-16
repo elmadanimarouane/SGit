@@ -26,8 +26,7 @@ object commit {
       // We get the SHA of our commit thanks to our tree
       val shaCommit = CustomHasher.hashObjectIntoSha1(commitTree)
       // We check first if it is our first commit
-      val pathCommits = pathProject + "/.sgit/objects/commits"
-      if(FileApi.getSubDir(new File(pathCommits)).isEmpty)
+      if(SgitApi.getCurrentCommit.isEmpty)
         {
           // We create our commit without giving him a previous commit
           createCommit(shaCommit, commitTree, commitMessage)
@@ -35,7 +34,7 @@ object commit {
       else
         {
           // We create our commit and we give it as sub commit the previous commit made
-          createCommit(shaCommit,commitTree,commitMessage, SgitApi.getCurrentCommit)
+          createCommit(shaCommit,commitTree,commitMessage, SgitApi.getCurrentCommit.head)
         }
       // We update our ref file so that it points toward our new commit
       SgitApi.updateRef(shaCommit)

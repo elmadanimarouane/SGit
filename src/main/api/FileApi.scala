@@ -4,6 +4,7 @@ import java.io._
 import java.security.{DigestInputStream, MessageDigest}
 
 import scala.io.Source
+import scala.reflect.internal.util.FileUtils
 
 
 object FileApi {
@@ -82,7 +83,7 @@ object FileApi {
           // our result. If it's the opposite, we keep our head with our result since we need to check the
           // subdirectories in our directory. We also make sure to exclude our .sgit directory since we don't need
           // to check it
-          val recursiveList = if(directories.isEmpty || (head.getPath contains ".sgit") || (head.getPath contains ".git") ||(head.getPath contains "out")) result else head :: result
+          val recursiveList = if(directories.isEmpty || (head.getPath contains ".sgit") || (head.getPath contains ".git") ||(head.getPath contains "out") || (head.getPath contains ".idea")) result else head :: result
           // We make the recursion again but this time with the tail with the subdirectories that we found earlier.
           // If we didn't find any subdirectory, then our value "directories" is empty and we simply loop in our tail.
           // Still, we keep our result in the recursiveList
@@ -117,6 +118,12 @@ object FileApi {
     // We initiate our first recursion by getting all the directories and set our result as an empty list
     tailRecGetAllFiles(getAllSubDir(dirFile), Nil)
   }
+
+  // This method allows us to know if a directory is empty or not
+  def isDirEmpty(dir: File): Boolean =
+    {
+      dir.listFiles().toList.isEmpty
+    }
 
   // This method allows us to get a list of file from each line of a file. Since it is used to get the content of our
   // index file which contains in every line a SHA and the path of a file, we add as attributes which substring of each
@@ -157,5 +164,32 @@ object FileApi {
   def difBetweenTwoFiles(file1: List[String], file2: List[String]): Unit =
     {
 
+    }
+
+  // This method allows us to clear a file
+  def clearFile(file: File): Unit =
+    {
+      val pw = new PrintWriter(file)
+      pw.print("")
+      pw.close()
+    }
+
+  // This method allows us to clean our work repository by deleting our tracked files and empty repos
+  def cleanWorkRepo(): Unit =
+    {
+      // We get the path of our project
+      val projectPath = System.getProperty("user.dir")
+      // We get the path of our tracked files located in our index file
+      val listFileIndex = FileApi.getFullListOfKeptFiles.map(x => x.substring(41))
+      // We delete them
+      listFileIndex.foreach(path => new File(path).delete())
+      // If we have empty repo, we delete them aswell. First, we get our list of repository from our project and
+      // sort them by the length of their path, the longer the deeper in our work repository
+      val listRepos = FileApi.getAllSubDir(new File(projectPath)).sortWith(_.getPath.length > _.getPath.length)
+      // We check if our repositories are empty or not. If it's the case, we delete it. Since our list in ordered by
+      // the longest path, we are sure we won't miss any folders that may contain some empty folders
+      listRepos.foreach(file => if(FileApi.isDirEmpty(file)) file.delete())
+      // We clear our index file
+      clearFile(new File(projectPath + "/.sgit/index"))
     }
 }

@@ -27,9 +27,9 @@ object log {
   def createLog(shaValue: String, commitMessage: String, committerName: String, shaSubCommit: String = null): Unit =
     {
       // We get the path of our project
-      val pathDir = System.getProperty("user.dir") + "/.sgit/log/log"
+      val pathDir = System.getProperty("user.dir") + "/.sgit/"
       // We add it the path of our log file
-      val pathFile = pathDir + ""
+      val pathFile = pathDir + "log/log"
       // If it is our first commit, we give our sub commit the value "0" 40 time.
       if(shaSubCommit == null)
         {
