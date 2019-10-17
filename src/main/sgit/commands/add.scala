@@ -9,7 +9,7 @@ import scala.io.Source
 object add {
 
   // This method allows us to add a single file
-  def add(file: File): Unit =
+  def add(file: File, customDir: String = ""): Unit =
   {
     // We first convert our file into a SHA string
     val shaValue = FileApi.encodeSha(file)
@@ -19,7 +19,7 @@ object add {
 
     // We check if a directory with the same two char of our SHA exist. If it is the case, we don't do something. Else,
     // We initiate the add process
-    val projectDir = System.getProperty("user.dir") + "/.sgit/objects/blobs"
+    val projectDir = System.getProperty("user.dir") + customDir + "/.sgit/objects/blobs"
     val objectDir = new File(projectDir)
     if(!objectDir.listFiles().map(_.getName).contains(shaValueFirstTwo))
       {
@@ -47,7 +47,7 @@ object add {
           }
       }
 
-    val indexPath = System.getProperty("user.dir") + "/.sgit/index"
+    val indexPath = System.getProperty("user.dir") + customDir + "/.sgit/index"
     // We check our index file if our path is not already in it (in the case of adding a file that we modified)
     val pathsStoredInIndex = FileApi.listFromFile(indexPath, 41)
     // We convert our list of string into a list of file
@@ -83,9 +83,9 @@ object add {
   }
 
   // This method allows us to add all the file of our project (excluding our .sgit directory)
-  def addAll(): Unit =
+  def addAll(customDir: String = ""): Unit =
     {
-      val allFiles = FileApi.getFilesAllDir(System.getProperty("user.dir"))
+      val allFiles = FileApi.getFilesAllDir(System.getProperty("user.dir") + customDir)
       allFiles.foreach(file => add(file))
     }
 }

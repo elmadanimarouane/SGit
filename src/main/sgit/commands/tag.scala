@@ -7,10 +7,10 @@ import main.api.{FileApi, SgitApi}
 object tag {
 
   // This method allows us to create a tag
-  def tag(tagName: String): Unit =
+  def tag(tagName: String, customDir: String = ""): Unit =
     {
       // We get our current branch file (located in refs/heads)
-      val currentBranch = SgitApi.getBranchFile
+      val currentBranch = SgitApi.getBranchFile(customDir)
       // We check if we have already done a commit before or not
       if(currentBranch.isFile)
         {

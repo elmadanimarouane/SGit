@@ -1,7 +1,5 @@
 package main.sgit.commands
 
-import java.io.File
-
 import main.api.{FileApi, SgitApi, TimeApi}
 
 object log {
@@ -24,10 +22,10 @@ object log {
     }
 
   // This method allows us to add a commit to our log file
-  def createLog(shaValue: String, commitMessage: String, committerName: String, shaSubCommit: String = null): Unit =
+  def createLog(shaValue: String, commitMessage: String, committerName: String, shaSubCommit: String = null, customDir: String = ""): Unit =
     {
       // We get the path of our project
-      val pathDir = System.getProperty("user.dir") + "/.sgit/"
+      val pathDir = System.getProperty("user.dir") + customDir + "/.sgit/"
       // We add it the path of our log file
       val pathFile = pathDir + "log/log"
       // If it is our first commit, we give our sub commit the value "0" 40 time.
@@ -40,7 +38,7 @@ object log {
           FileApi.utilWriter(pathFile, shaSubCommit + " " + shaValue)
         }
       // We write the name of our branch
-      FileApi.utilWriter(pathFile, "Branch: " + SgitApi.getBranchFile.getPath.replace(pathDir + "refs/heads/",""))
+      FileApi.utilWriter(pathFile, "Branch: " + SgitApi.getBranchFile(customDir).getPath.replace(pathDir + "refs/heads/",""))
       // We write the name of the author of the commit
       FileApi.utilWriter(pathFile, "Author: " + committerName)
       // We write the date of the commit

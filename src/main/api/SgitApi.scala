@@ -28,21 +28,24 @@ object SgitApi {
   }
 
   // This method allows us to get our branch file
-  def getBranchFile: File =
+  def getBranchFile(customDir: String = ""): File =
     {
       // We get the path of our project
-      val projectPath = System.getProperty("user.dir") + "/.sgit/"
+      val projectPath = System.getProperty("user.dir") + customDir + "/.sgit/"
       // We first retrieve in which branch we are on
       val actualBranch = FileApi.listFromFile(projectPath + "HEAD", 5).head
+      // We check if our branch exist. If it is not the case, we create it
+      val branchFile = new File(projectPath + actualBranch)
+      if(!branchFile.isFile) branchFile.createNewFile()
       // We get the directory of our branch and initiate a file with it
-      new File(projectPath + actualBranch)
+      branchFile
     }
 
   // This method allows us to update our ref file pointing to the last commit
-  def updateRef(sha: String): Unit =
+  def updateRef(sha: String, customDir: String = ""): Unit =
     {
       // We get our branch file
-      val branchFile = getBranchFile
+      val branchFile = getBranchFile(customDir)
       // We check if it exists
       if(branchFile.isFile)
         {
@@ -62,10 +65,10 @@ object SgitApi {
     }
 
   // This method allows us to get the SHA value of the last commit done
-  def getCurrentCommit: List[String] =
+  def getCurrentCommit(customDir: String = ""): List[String] =
     {
       // We get our branch file
-      val branchFile = getBranchFile
+      val branchFile = getBranchFile(customDir)
       // We get the SHA stored in it and return it
       FileApi.listFromFile(branchFile.getPath, 0)
     }

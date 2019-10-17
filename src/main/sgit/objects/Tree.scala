@@ -1,7 +1,5 @@
 package main.sgit.objects
 
-import java.io.File
-
 import main.api.{FileApi, ObjectApi}
 
 
@@ -12,10 +10,10 @@ case class Tree(sha: String, listOfBlob: List[Blob], subTree: Tree = null)
 
 object Tree{
 
-  def createTree(sha: String, listOfBlob: List[Blob], subTree: Tree = null): Tree =
+  def createTree(sha: String, listOfBlob: List[Blob], subTree: Tree = null, customDir: String = ""): Tree =
     {
       // We create our tree directory and retrieve the path of our tree file
-      val treeFile = ObjectApi.CreateObject("trees", sha)
+      val treeFile = ObjectApi.CreateObject("trees", sha, customDir)
       // We write each of our blob in the file
       listOfBlob.foreach(x => FileApi.utilWriter(treeFile, "blob " + x.sha + " " + x.content.getPath))
       // If we have a sub tree, we also add it to our file

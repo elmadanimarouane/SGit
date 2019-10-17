@@ -4,7 +4,6 @@ import java.io._
 import java.security.{DigestInputStream, MessageDigest}
 
 import scala.io.Source
-import scala.reflect.internal.util.FileUtils
 
 
 object FileApi {

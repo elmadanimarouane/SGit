@@ -41,10 +41,10 @@ object branch {
     }
 
   // This method allows us to print a branch
-  def printBranch(branchFile: File): Unit =
+  def printBranch(branchFile: File, customDir: String = ""): Unit =
     {
       // We get our current branch
-      val currentBranch = SgitApi.getBranchFile
+      val currentBranch = SgitApi.getBranchFile(customDir)
       // If the branch is our actual branch, we add a little "*" before it
       if(branchFile == currentBranch)
         {

@@ -2,7 +2,6 @@ package main.sgit.commands
 
 import java.io.File
 
-import scala.io.StdIn.readLine
 import main.api.{CustomHasher, FileApi, ObjectApi, SgitApi, TimeApi}
 import main.sgit.objects.{Blob, Tree}
 
@@ -10,9 +9,9 @@ case class commit (shaValue: String, associatedTree: Tree, commitMessage: String
 
 object commit {
 
-  def commit(commitMessage: String = null): Unit =
+  def commit(commitMessage: String = null, customDir: String = ""): Unit =
     {
-      val pathProject = System.getProperty("user.dir")
+      val pathProject = System.getProperty("user.dir") + customDir
       // We get the path of our index
       val pathIndex = pathProject + "/.sgit/index"
       // We get our full list of tracked files
@@ -22,47 +21,37 @@ object commit {
       // We create a SHA value out of our list of blobs
       val shaTree = CustomHasher.hashObjectIntoSha1(listOfBlobs)
       // We create our tree
-      val commitTree = Tree.createTree(shaTree,listOfBlobs)
+      val commitTree = Tree.createTree(shaTree,listOfBlobs,customDir = customDir)
       // We get the SHA of our commit thanks to our tree
       val shaCommit = CustomHasher.hashObjectIntoSha1(commitTree)
       // We check first if it is our first commit
-      if(SgitApi.getCurrentCommit.isEmpty)
+      if(SgitApi.getCurrentCommit(customDir).isEmpty)
         {
           // We create our commit without giving him a previous commit
-          createCommit(shaCommit, commitTree, commitMessage)
+          createCommit(shaCommit, commitTree, commitMessage, customDir = customDir)
         }
       else
         {
           // We create our commit and we give it as sub commit the previous commit made
-          createCommit(shaCommit,commitTree,commitMessage, SgitApi.getCurrentCommit.head)
+          createCommit(shaCommit,commitTree,commitMessage, SgitApi.getCurrentCommit(customDir).head, customDir = customDir)
         }
       // We update our ref file so that it points toward our new commit
       SgitApi.updateRef(shaCommit)
     }
 
-  def createCommit(shaValue: String, associatedTree: Tree, commitMessage: String = null, shaSubCommit: String = null): Unit =
+  def createCommit(shaValue: String, associatedTree: Tree, commitMessage: String = null, shaSubCommit: String = null, customDir: String = ""): Unit =
   {
     // We create our commit directory and get the path of our commit file
-    val commitFile = ObjectApi.CreateObject("commits", shaValue)
+    val commitFile = ObjectApi.CreateObject("commits", shaValue, customDir)
     // We write the sha of our associated tree in it
     FileApi.utilWriter(commitFile, "tree " + associatedTree.sha)
     // We get the name of our committer
-    println("Please enter your name so it will be associated with your commit : ")
-    val committerName = readLine()
-    // We write the name of our committer to our file. If no name was given, we take the name of the user from its
-    // system
-    if(committerName.isEmpty)
-      {
-        FileApi.utilWriter(commitFile, "author " + System.getenv("USER"))
-      }
-    else
-    {
-      FileApi.utilWriter(commitFile, "author " + committerName)
-    }
+    val committerName = System.getenv("USER")
+    FileApi.utilWriter(commitFile, "author " + committerName)
     // We write the current date so we can get back later the date of the commit in our log
     FileApi.utilWriter(commitFile, TimeApi.getDate + "\n")
     // We get the list of our commits directories
-    val commitsDir = FileApi.getSubDir(new File(System.getProperty("user.dir") + "/.sgit/objects/commits"))
+    val commitsDir = FileApi.getSubDir(new File(System.getProperty("user.dir") + customDir + "/.sgit/objects/commits"))
     // We write our commit message if one was given
     if(commitMessage != null)
       {
@@ -80,17 +69,17 @@ object commit {
         FileApi.utilWriter(commitFile, "subcommit " + shaSubCommit)
       }
     // We then need to put in our ref file the sha of our new commit
-    SgitApi.updateRef(shaValue)
+    SgitApi.updateRef(shaValue,customDir)
     // We add our commit to our log
     log.createLog(shaValue, if (commitMessage == null) "Commit number " + commitsDir.size else commitMessage,
-      if(committerName.isEmpty) System.getenv("USER") else committerName, shaSubCommit)
+      committerName, shaSubCommit, customDir)
   }
 
   // This method allows us, with a sha, to retrieve the name of the commit associated with it
-  def getCommitName(sha: String): String =
+  def getCommitName(sha: String, customDir: String = ""): String =
     {
       // We get the path of our commit
-      val commitPath = System.getProperty("user.dir") + "/.sgit/objects/commits/" + sha.substring(0,2) + "/" +
+      val commitPath = System.getProperty("user.dir") + customDir + "/.sgit/objects/commits/" + sha.substring(0,2) + "/" +
       sha.substring(2)
       // We read the content of it and convert our list to a vector since it is faster to index it, which we will do
       // later
@@ -100,10 +89,10 @@ object commit {
     }
 
   // This method allows us to get all of our commits
-  def getCommits: List[String] =
+  def getCommits(customDir: String = ""): List[String] =
     {
       // We get the path of our commits
-      val commitsPath = System.getProperty("user.dir") + "/.sgit/objects/commits"
+      val commitsPath = System.getProperty("user.dir") + customDir + "/.sgit/objects/commits"
       // We get all of our directories in our commit directory
       val commitsDir = FileApi.getSubDir(new File(commitsPath))
       // We then get all of our commits

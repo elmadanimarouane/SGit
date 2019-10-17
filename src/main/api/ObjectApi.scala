@@ -3,10 +3,10 @@ package main.api
 import java.io.File
 
 object ObjectApi {
-  def CreateObject(typeOfObject: String, shaValue: String): String =
+  def CreateObject(typeOfObject: String, shaValue: String, customDir: String = ""): String =
     {
       // We get the path of our object directory
-      val projectPath = System.getProperty("user.dir") + s"/.sgit/objects/$typeOfObject"
+      val projectPath = System.getProperty("user.dir") + customDir + s"/.sgit/objects/$typeOfObject"
       val objectPath = new File(projectPath + "/" + shaValue.substring(0,2))
       objectPath.mkdir()
       // We create our object file

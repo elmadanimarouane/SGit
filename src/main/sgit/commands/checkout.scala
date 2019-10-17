@@ -11,7 +11,7 @@ object checkout {
     {
       // We first need to be sure that the argument is either a branch, tag or commit
       // We first get our list of commits
-      val listOfCommits = commit.getCommits
+      val listOfCommits = commit.getCommits()
       // We then get our list of branches
       val listOfBranches = branch.getBranches.map(x => x.getName)
       // We finally get our list of tags
