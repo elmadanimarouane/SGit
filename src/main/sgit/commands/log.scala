@@ -48,4 +48,14 @@ object log {
       FileApi.utilWriter(pathFile,"Commit: " + commitMessage + "\n")
     }
 
+  // This method allows us to get all the difference between all of our commits
+  def logP(): Unit =
+    {
+      // We get all of our commits from our log file and reverse it to have our newest at the beginning
+      val logContent = FileApi.listFromFile(System.getProperty("user.dir") + "/.sgit/log/log",0).grouped(6).toList
+      val logContentSha = logContent.map(x=> x.head)
+      val logContentUniqueSha = logContentSha.map(x => x.substring(41)).reverse
+      // We compare each commit with its subcommit
+      logContentUniqueSha.foreach(x => SgitApi.diffBetweenCommits(x))
+    }
 }

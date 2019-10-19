@@ -98,28 +98,151 @@ object SgitApi {
     new File(commitPath)
   }
 
-  // This method allows us to compare two file by giving as attribute the list of each line of our two files
-  def diffBetweenTwoCommits(firstCommit: String, secondCommit: String): Unit =
+  // This method allows us to get the file of a blob based on its sha
+  def getBlobBySha(sha: String, customDir: String = ""): File =
+    {
+      val blobPath = (System.getProperty("user.dir") + customDir + "/.sgit/objects/blobs" + "/" + sha.substring(0,2)
+        + "/" + sha.substring(2))
+      new File(blobPath)
+    }
+
+  // This method allows us to compare a commit with its subcommit
+  def diffBetweenCommits(commitSha: String): Unit =
   {
-    // We get the trees of our commits
-    val firstTree = FileApi.listFromFile(getCommitBySha(firstCommit).getPath,0).head.substring(5)
-    val secondTree = FileApi.listFromFile(getCommitBySha(secondCommit).getPath,0).head.substring(5)
-    // We get the blobs stored in our trees
-    val firstBlobsList = FileApi.listFromFile(TreeApi.getTreeFile(firstTree).getPath,5)
-    val secondBlobsList = FileApi.listFromFile(TreeApi.getTreeFile(secondTree).getPath,5)
-    // We create blobs from our two lists
-    val firstBlobs = firstBlobsList.map(x => convertTreeContentToBlob(x))
-    val secondBlobs = secondBlobsList.map(x => convertTreeContentToBlob(x))
-    // We get our modified Blobs (with the same file but without the same sha)
-    val modifiedBlobs = (firstBlobs.filter(blob => secondBlobs.map(x => x.content).contains(blob.content)
-      && !secondBlobs.map(x => x.sha).contains(blob.sha)) ::: secondBlobs.filter(blob =>
-      firstBlobs.map(x => x.content).contains(blob.content) && !firstBlobs.map(x => x.sha).contains(blob.sha))).groupBy(_.content)
-    // Now that we have our two blobs
-    println(modifiedBlobs)
+    println("commit " + commitSha)
+    // We get the file of our commit
+    val commitFile = getCommitBySha(commitSha)
+    // We get the content
+    val commitContent = FileApi.listFromFile(commitFile.getPath,0)
+    // We get the content of our blobs from our commit
+    val commitTree = FileApi.listFromFile(commitFile.getPath,0).head.substring(5)
+    val commitTreeContent = FileApi.listFromFile(TreeApi.getTreeFile(commitTree).getPath,5)
+    // We check if we have a subcommit
+    if(commitContent.reverse.head.contains("subcommit"))
+      {
+        // If it is the case, we get our subcommit
+        val subCommitSha = commitContent.reverse.head.substring(10)
+        // We get the content of our commits (the sha of the tree associated to our commit)
+        val subCommitTree = FileApi.listFromFile(getCommitBySha(subCommitSha).getPath,0).head.substring(5)
+        // We get the content of our trees (the sha and the file path)
+        val subCommitTreeContent = FileApi.listFromFile(TreeApi.getTreeFile(subCommitTree).getPath,5)
+        // We check if we haven't added a new file
+        val newFiles = commitTreeContent.map(x => x.substring(41)).filterNot(y =>
+          subCommitTreeContent.map(z => z.substring(41)).contains(y))
+        if(newFiles.nonEmpty)
+          {
+            // We get its sha by filtering our commitTreeContent
+            val newFilesAndSha = commitTreeContent.filter(x => newFiles.contains(x.substring(41)))
+            // We get the content of the blob of the sha gathered earlier
+            val newFilesAndContent = newFilesAndSha.map(x =>
+              (x.substring(41), FileApi.listFromFile(getBlobBySha(x.substring(0,40)).getPath,0)))
+            // We print its content
+            printAddedFiles(newFilesAndContent)
+          }
+        // We filter our two contents so we can get the files with the same path but not the same sha
+        val modifiedFilesList = for {
+          firstTree <- commitTreeContent
+          secondTree <- subCommitTreeContent
+          if firstTree.contains(secondTree.substring(41)) && !firstTree.contains(secondTree.substring(0,40))
+        } yield (firstTree.substring(41), firstTree.substring(0,40), secondTree.substring(0,40))
+        // We get the datas
+        val finalData = modifiedFilesList.map(x => FileApi.listFromFile(getBlobBySha(x._2).getPath,0))
+        val initialData = modifiedFilesList.map(x => FileApi.listFromFile(getBlobBySha(x._3).getPath,0))
+        // We combine the two data with the name of our file
+        val fullCombinedList = (modifiedFilesList.map(x => x._1), initialData, finalData).zipped.toList
+        // We print the differences
+        for(x <- fullCombinedList)
+          {
+            println("Modification made in file " + x._1.replace(System.getProperty("user.dir"),""))
+            diffBetweenTwoContent(x._2, x._3)
+            println("")
+          }
+      }
+      // Else, we simply print the new content as addition of line
+    else
+      {
+        val newFileContent = commitTreeContent.map(x => FileApi.listFromFile(getBlobBySha(x.substring(0,40)).getPath,0))
+        val newFileName = commitTreeContent.map(x => x.substring(41))
+        // We fuse the name with the content
+        val combinedNameAndContent = (newFileName, newFileContent).zipped.toList
+        // We print the addition of lines
+        printAddedFiles(combinedNameAndContent)
+      }
   }
 
-  def convertTreeContentToBlob(treeContent: String): Blob =
+  // This method allows us to get the differences between two content, represented as list of strings
+  def diffBetweenTwoContent(initialContent: List[String], finalContent: List[String]): Unit =
     {
-      Blob(new File(treeContent.substring(41)), treeContent.substring(0,40))
+      // We fuse the two lists
+      val combinedList = finalContent.zipAll(initialContent,"","")
+      // We compare each line
+      for(line <- combinedList)
+      {
+        if(line._1 == line._2)
+        {
+          println("   " + line._1)
+        }
+        else
+        {
+          // We check if our new file is smaller than our previous, which means some lines were removed
+          if(initialContent.size >= finalContent.size)
+          {
+            // If our new line is not in the old file
+            if((combinedList.reverse.head._1 != line._1 || !line._1.isEmpty) && !initialContent.contains(line._1))
+            {
+              // This means the line was added
+              println(Console.GREEN + " + " + line._1)
+              print(Console.WHITE)
+            }
+            // If our old line is not in the new file
+            if(!finalContent.contains(line._2))
+            {
+              // This means the line was removed
+              println(Console.RED + " - " + line._2)
+              print(Console.WHITE)
+            }
+            // If our new line is in the old file
+            else
+            {
+              // This means the line was simply moved
+              println("   " + line._2)
+            }
+          }
+          //Otherwise, this means that some lines were added
+          else
+          {
+            // If our new line is not in the old file
+            if(!initialContent.contains(line._1))
+            {
+              // This means the line was added
+              println(Console.GREEN + " + " + line._1)
+              print(Console.WHITE)
+            }
+            // If our old line is not in the new file
+            if((combinedList.reverse.head._2 != line._2 || !line._2.isEmpty) && !finalContent.contains(line._2))
+            {
+              // This means the line was removed
+              println(Console.RED + " - " + line._2)
+              print(Console.WHITE)
+            }
+            // If our new line is in the old file
+            if(initialContent.contains(line._1))
+            {
+              // This means the line was simply moved
+              println("   " + line._1)
+            }
+          }
+        }
+      }
+    }
+
+  def printAddedFiles(addedFiles: Iterable[(String, List[String])]): Unit =
+    {
+      for(x <- addedFiles)
+      {
+        println("Added file " + x._1.replace(System.getProperty("user.dir"),""))
+        x._2.foreach(line => println(Console.GREEN + " + " + line))
+        println(Console.WHITE)
+      }
     }
 }

@@ -91,7 +91,8 @@ object init {
     // tag.tag("First tag")
     // checkout.checkout("master") C17385C11B873CC6A5602AE8830FF4FF77543062
     // diff.diff()
-    SgitApi.diffBetweenTwoCommits("4798F9C9F2463DD623EA03ACED56A9EBFECBE348","8A12A75E259BFBAE9A1A8E6F05A116446961616E")
+    // SgitApi.diffBetweenCommits("06EB83196D9B90F8E76FD27B513B019AEBB92342")
+    log.logP()
   }
 
 }
