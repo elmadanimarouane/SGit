@@ -7,12 +7,12 @@ import main.api.{FileApi, SgitApi}
 object diff {
 
   // This method allows us to get what was modified in our added files
-  def diff(): Unit =
+  def diff(customDir: String = ""): Unit =
     {
       // We get the list of our modified blob only
       val listOfModifiedBlob = SgitApi.modifiedFiles().map(x => x._1)
       // We get a list of our tracked files
-      val listOfTrackedFiles = FileApi.getFullListOfKeptFiles
+      val listOfTrackedFiles = FileApi.getFullListOfKeptFiles(customDir)
       // We combined the two lists with a for method. Note : we use a for method here because it is simpler to read
       // and understand than to use maps and filters
       val combinedList = for

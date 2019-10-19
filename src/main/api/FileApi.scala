@@ -142,27 +142,21 @@ object FileApi {
     }
 
   // This method allows us to get a Set of the files kept in our Index file
-  def getListOfKeptFiles: Set[File] = {
+  def getListOfKeptFiles(customDir: String = ""): Set[File] = {
     // We get the path of our project
-    val pathProject = System.getProperty("user.dir")
+    val pathProject = System.getProperty("user.dir") + customDir
     // We get all of our path kept in our index file
     val listOfPathFile = listFromFile(pathProject + "/.sgit/index",41)
     listOfPathFile.map(x => new File(x)).toSet
   }
 
   // This method allows us to get a list of our SHA tracked
-  def getFullListOfKeptFiles: List[String] =
+  def getFullListOfKeptFiles(customDir: String = ""): List[String] =
     {
       // We get the path of our project
-      val pathProject = System.getProperty("user.dir")
+      val pathProject = System.getProperty("user.dir") + customDir
       // We get all of our SHA kept in our index file
       FileApi.listFromFile(pathProject + "/.sgit/index", 0)
-    }
-
-  // This method allows us to compare two file by giving as attribute the list of each line of our two files
-  def difBetweenTwoFiles(file1: List[String], file2: List[String]): Unit =
-    {
-
     }
 
   // This method allows us to clear a file
@@ -174,12 +168,12 @@ object FileApi {
     }
 
   // This method allows us to clean our work repository by deleting our tracked files and empty repos
-  def cleanWorkRepo(): Unit =
+  def cleanWorkRepo(customDir: String = ""): Unit =
     {
       // We get the path of our project
-      val projectPath = System.getProperty("user.dir")
+      val projectPath = System.getProperty("user.dir") + customDir
       // We get the path of our tracked files located in our index file
-      val listFileIndex = FileApi.getFullListOfKeptFiles.map(x => x.substring(41))
+      val listFileIndex = FileApi.getFullListOfKeptFiles(customDir).map(x => x.substring(41))
       // We delete them
       listFileIndex.foreach(path => new File(path).delete())
       // If we have empty repo, we delete them aswell. First, we get our list of repository from our project and

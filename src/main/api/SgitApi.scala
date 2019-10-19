@@ -2,23 +2,26 @@ package main.api
 
 import java.io.File
 
+import main.api.treeApi.TreeApi
 import main.sgit.objects.Blob
 
 object SgitApi {
 
   // This method allows us to get all of our modified files
-  def modifiedFiles(): Iterable[(Blob, Boolean)] =
+  def modifiedFiles(customDir: String = ""): Iterable[(Blob, Boolean)] =
   {
     // We get the files that we kept in our index file
-    val listOfKeptFiles = FileApi.getListOfKeptFiles
+    val listOfKeptFiles = FileApi.getListOfKeptFiles(customDir)
     // We get the path of our project
-    val pathProject = System.getProperty("user.dir")
-    // We get all of our files
-    val listOfFiles = FileApi.getFilesAllDir(pathProject)
+    val pathProject = System.getProperty("user.dir") + customDir
+    // We get all of our files. If our list of files is empty, it means that we don't have any sub directory.
+    // We should then get all of our files in our directory
+    val listOfFiles = if(FileApi.getFilesAllDir(pathProject).isEmpty) FileApi.getAllFilesFromSingleDir(new File(pathProject))
+    else FileApi.getFilesAllDir(pathProject)
     // We filter the tracked files by excluding from our list of all files the files that are not tracked
     val listOfTrackedFiles = listOfFiles.filter(listOfKeptFiles)
     // We convert our list of tracked files into lists of SHA1 and we keep only the first two char
-    val listOfTrackedSha = listOfTrackedFiles.map(file => new Blob(file, FileApi.encodeSha(file).substring(0,2)))
+    val listOfTrackedSha = listOfTrackedFiles.map(file => Blob(file, FileApi.encodeSha(file).substring(0,2)))
     // We get all of our directories from our "objects" folder
     val listDirOfObjects = FileApi.getSubDir(new File(pathProject + "/.sgit/objects/blobs"))
     // We keep only the files that have been modified (and therefore, we keep only the files that have a SHA not
@@ -74,14 +77,49 @@ object SgitApi {
     }
 
   // This method allows us to change our branch
-  def changeBranch(branchName: String): Unit =
+  def changeBranch(branchName: String, customDir: String = ""): Unit =
     {
       // We get our HEAD file
-      val headFile = new File(System.getProperty("user.dir") + "/.sgit/HEAD")
+      val headFile = new File(System.getProperty("user.dir") + customDir + "/.sgit/HEAD")
       // We create a temporary file where we write our new pointer to our branch
       val tmpFile = new File("/tmp/tempHEAD")
       FileApi.utilWriter(tmpFile.getPath, s"ref: refs/heads/$branchName")
       // We actualize our HEAD file
       tmpFile.renameTo(headFile)
+    }
+
+  // This method allows us to get the file of a commit based on its sha
+  def getCommitBySha(sha: String, customDir: String = ""): File =
+  {
+    // We get the path of our commit
+    val commitPath = (System.getProperty("user.dir") + customDir + "/.sgit/objects/commits/" + sha.substring(0,2)
+      + "/" + sha.substring(2))
+    // We return the file
+    new File(commitPath)
+  }
+
+  // This method allows us to compare two file by giving as attribute the list of each line of our two files
+  def diffBetweenTwoCommits(firstCommit: String, secondCommit: String): Unit =
+  {
+    // We get the trees of our commits
+    val firstTree = FileApi.listFromFile(getCommitBySha(firstCommit).getPath,0).head.substring(5)
+    val secondTree = FileApi.listFromFile(getCommitBySha(secondCommit).getPath,0).head.substring(5)
+    // We get the blobs stored in our trees
+    val firstBlobsList = FileApi.listFromFile(TreeApi.getTreeFile(firstTree).getPath,5)
+    val secondBlobsList = FileApi.listFromFile(TreeApi.getTreeFile(secondTree).getPath,5)
+    // We create blobs from our two lists
+    val firstBlobs = firstBlobsList.map(x => convertTreeContentToBlob(x))
+    val secondBlobs = secondBlobsList.map(x => convertTreeContentToBlob(x))
+    // We get our modified Blobs (with the same file but without the same sha)
+    val modifiedBlobs = (firstBlobs.filter(blob => secondBlobs.map(x => x.content).contains(blob.content)
+      && !secondBlobs.map(x => x.sha).contains(blob.sha)) ::: secondBlobs.filter(blob =>
+      firstBlobs.map(x => x.content).contains(blob.content) && !firstBlobs.map(x => x.sha).contains(blob.sha))).groupBy(_.content)
+    // Now that we have our two blobs
+    println(modifiedBlobs)
+  }
+
+  def convertTreeContentToBlob(treeContent: String): Blob =
+    {
+      Blob(new File(treeContent.substring(41)), treeContent.substring(0,40))
     }
 }

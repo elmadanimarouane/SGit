@@ -2,7 +2,7 @@ package main.sgit.commands
 
 import java.io.File
 
-import main.api.FileApi
+import main.api.{FileApi, SgitApi}
 
 object init {
 
@@ -76,21 +76,22 @@ object init {
       {
         // Creating our .sgit directory
         sgitDirBuilder(customDir)
-        println("Initialized empty SGit repository in " + currDir + "/.sgit")
+        println("Initialized empty SGit repository in " + currDir + customDir + "/.sgit")
       }
   }
 
   def main(args: Array[String]): Unit = {
     // status.status()
     // initSgitDir()
-    // add.add(new File("/home/marouane/Desktop/IG5/Sgit/src/main/test50.txt"))
-    // commit.commit("Adding Mamak")
+    // add.add(new File("/home/marouane/Desktop/IG5/Sgit/src/test2.txt"))
+    // commit.commit("Third commit")
     // log.log()
     // branch.listBranches()
     // branch.branch("Test branch")
     // tag.tag("First tag")
-    // checkout.checkout("master")
-    diff.diff()
+    // checkout.checkout("master") C17385C11B873CC6A5602AE8830FF4FF77543062
+    // diff.diff()
+    SgitApi.diffBetweenTwoCommits("4798F9C9F2463DD623EA03ACED56A9EBFECBE348","8A12A75E259BFBAE9A1A8E6F05A116446961616E")
   }
 
 }

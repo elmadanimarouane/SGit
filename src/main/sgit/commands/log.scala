@@ -11,14 +11,15 @@ object log {
       val projectDir = System.getProperty("user.dir") + "/.sgit/"
       // We get the path of our log
       val logPath = projectDir + "/log/log"
-      // We get the content of it in a list of string
-      val logContent = FileApi.listFromFile(logPath,0)
+      // We get the content of it in a list of string that we group to have a list of lists, each list representing
+      // a commit written in our log file
+      val logContent = FileApi.listFromFile(logPath,0).grouped(6).toList
+      // We reverse it to have our newest commit at the beginning
+      val logContentReversed = logContent.reverse
       // We print the whole content
-      logContent.foreach(x =>
-      if(x.length == 81) println("commit " + x.substring(41))
-        else if(x.contains("Commit")) println("\n\t" + x.substring(8) + "\n")
-        else println(x)
-      )
+      logContentReversed.foreach(x => x.foreach(line =>
+      if(line.length == 81) println("commit " + line.substring(41)) else if (line.contains("Commit"))
+      println("\n\t" + line.substring(8) + "\n") else println(line)))
     }
 
   // This method allows us to add a commit to our log file
@@ -38,7 +39,7 @@ object log {
           FileApi.utilWriter(pathFile, shaSubCommit + " " + shaValue)
         }
       // We write the name of our branch
-      FileApi.utilWriter(pathFile, "Branch: " + SgitApi.getBranchFile(customDir).getPath.replace(pathDir + "refs/heads/",""))
+      FileApi.utilWriter(pathFile, "Branch: " + SgitApi.getBranchFile(customDir).getName)
       // We write the name of the author of the commit
       FileApi.utilWriter(pathFile, "Author: " + committerName)
       // We write the date of the commit

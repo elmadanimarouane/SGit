@@ -7,10 +7,10 @@ import main.api.{FileApi, SgitApi}
 object branch {
 
   // This method allows us to create a new branch
-  def branch(nameBranch: String): Unit =
+  def branch(nameBranch: String, customDir: String = ""): Unit =
     {
       // We get the path of our heads from our project
-      val headsPath = System.getProperty("user.dir") + "/.sgit/refs/heads/"
+      val headsPath = System.getProperty("user.dir") + customDir + "/.sgit/refs/heads/"
       // We create a file object of our branch
       val branchObject = new File(headsPath + nameBranch)
       // We check if it exists. If it is the case, we tell to the user that this branch already exists. If not, we
@@ -26,19 +26,16 @@ object branch {
     }
 
   // This method allows us to get all of our branches
-  def getBranches: List[File] =
+  def getBranches(customDir: String = ""): List[File] =
     {
       // We get the path of our heads
-      val headsPath = System.getProperty("user.dir") + "/.sgit/refs/heads"
+      val headsPath = System.getProperty("user.dir") + customDir + "/.sgit/refs/heads"
       // We get all of our heads files with the name of their branch
       FileApi.getFilesSingleDir(headsPath)
     }
 
   // This method allows us to print all of our branches
-  def listBranches(): Unit =
-    {
-      getBranches.foreach(x => printBranch(x))
-    }
+  def listBranches(customDir: String = ""): Unit = getBranches(customDir).foreach(x => printBranch(x, customDir))
 
   // This method allows us to print a branch
   def printBranch(branchFile: File, customDir: String = ""): Unit =

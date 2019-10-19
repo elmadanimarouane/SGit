@@ -32,8 +32,18 @@ object commit {
         }
       else
         {
-          // We create our commit and we give it as sub commit the previous commit made
-          createCommit(shaCommit,commitTree,commitMessage, SgitApi.getCurrentCommit(customDir).head, customDir = customDir)
+          // We get our list of commits
+          val listOfCommits = getCommits()
+          // We make sure that the same commit wasn't done before
+          if(!listOfCommits.contains(shaCommit))
+            {
+              // We create our commit and we give it as sub commit the previous commit made
+              createCommit(shaCommit,commitTree,commitMessage, SgitApi.getCurrentCommit(customDir).head, customDir = customDir)
+            }
+          else
+            {
+              println("The same commit was already made")
+            }
         }
       // We update our ref file so that it points toward our new commit
       SgitApi.updateRef(shaCommit)
