@@ -3,8 +3,8 @@ package commands
 import java.io.File
 
 import api.FileApi
-import sgit.commands.{add, commit, init}
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
+import sgit.commands.{Add, Commit, Init}
 
 import scala.reflect.io.Directory
 
@@ -24,13 +24,13 @@ class LogTest extends FunSpec with BeforeAndAfter with Matchers{
   before
   {
     testDirFile.mkdir()
-    init.initSgitDir(testDir)
+    Init.initSgitDir(testDir)
     testFile1.createNewFile()
     FileApi.utilWriter(testFile1.getPath,"Test1")
     subDir.mkdir()
     testFile2.createNewFile()
     FileApi.utilWriter(testFile2.getPath, "Test2")
-    add.add(testFile1, testDir)
+    Add.add(testFile1, testDir)
   }
   // After our test, we delete our test directory with everything inside of it
   after
@@ -43,23 +43,23 @@ class LogTest extends FunSpec with BeforeAndAfter with Matchers{
     it("Should, after a commit, change our log file with the previous commit and the new commit in it")
     {
       // We do our first commit
-      commit.commit("Test commit 1",testDir)
+      Commit.commit(Some("Test commit 1"),testDir)
       // We check that the first line of our log contains our new commit
       val logContent = FileApi.listFromFile(fullTestDirPath + "/.sgit/log/log",0)
-      logContent.head == "0"*40 + " " + commit.getCommits(testDir).head shouldBe true
+      logContent.head == "0"*40 + " " + Commit.getCommits(testDir).head shouldBe true
       // We check that the name of our commit was well written
       val logContentReversed = logContent.reverse
       // Since we add a \n after writing in our log file, we should take the penultimate element of our content
       logContentReversed.tail.head == "Commit: Test commit 1" shouldBe true
       // We add our second file and do another commit afterward
-      add.add(testFile2, testDir)
-      commit.commit(customDir = testDir)
+      Add.add(testFile2, testDir)
+      Commit.commit(customDir = testDir)
       // We get back our new log content
       val newLogContent = FileApi.listFromFile(fullTestDirPath + "/.sgit/log/log",0)
       println(newLogContent)
       // We check that our log content contains our two commits
-      val commitNumberOne = commit.getCommits(testDir).head
-      val commitNumberTwo = commit.getCommits(testDir).tail.head
+      val commitNumberOne = Commit.getCommits(testDir).head
+      val commitNumberTwo = Commit.getCommits(testDir).tail.head
       newLogContent.contains(commitNumberOne + " " + commitNumberTwo) ||
         newLogContent.contains(commitNumberTwo + " " + commitNumberOne) shouldBe true
       // We check that we have our second commit message, which, because we didn't specify a commit message, should

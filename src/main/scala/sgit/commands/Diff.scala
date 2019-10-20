@@ -4,7 +4,7 @@ import java.io.File
 
 import api.{FileApi, SgitApi}
 
-object diff {
+object Diff {
 
   // This method allows us to get what was modified in our added files
   def diff(customDir: String = ""): Unit =

@@ -3,8 +3,8 @@ package commands
 import java.io.File
 
 import api.{FileApi, SgitApi}
-import sgit.commands.{add, init}
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
+import sgit.commands.{Add, Init}
 
 import scala.reflect.io.Directory
 
@@ -20,10 +20,10 @@ class StatusTest extends FunSpec with BeforeAndAfter with Matchers {
   before
   {
     testDirFile.mkdir()
-    init.initSgitDir(testDir)
+    Init.initSgitDir(testDir)
     testFile.createNewFile()
     FileApi.utilWriter(testFile.getPath,"Test")
-    add.add(testFile, testDir)
+    Add.add(testFile, testDir)
   }
 
   // After our test, we delete our test directory with everything inside of it

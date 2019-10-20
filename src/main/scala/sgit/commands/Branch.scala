@@ -4,7 +4,7 @@ import java.io.File
 
 import api.{FileApi, SgitApi}
 
-object branch {
+object Branch {
 
   // This method allows us to create a new branch
   def branch(nameBranch: String, customDir: String = ""): Unit =
@@ -56,7 +56,7 @@ object branch {
       // If it is empty, we don't print anything more. Else, we print the last commit and its name
       if(branchContent.nonEmpty)
         {
-          println(branchContent.head.substring(0,7) + " " + commit.getCommitName(branchContent.head))
+          println(branchContent.head.substring(0,7) + " " + Commit.getCommitName(branchContent.head))
         }
       else
         {

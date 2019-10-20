@@ -4,7 +4,7 @@ import java.io.File
 
 import api.FileApi
 
-object init {
+object Init {
 
   def isSgitDir(directoryName: String): Boolean =
   {

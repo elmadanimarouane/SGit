@@ -2,7 +2,7 @@ package sgit.commands
 
 import api.{FileApi, SgitApi, TimeApi}
 
-object log {
+object Log {
 
   // This method allows us to get our general log file
   def log(): Unit =
@@ -23,21 +23,14 @@ object log {
     }
 
   // This method allows us to add a commit to our log file
-  def createLog(shaValue: String, commitMessage: String, committerName: String, shaSubCommit: String = null, customDir: String = ""): Unit =
+  def createLog(shaValue: String, commitMessage: String, committerName: String, shaSubCommit: String
+                ,customDir: String = ""): Unit =
     {
       // We get the path of our project
       val pathDir = System.getProperty("user.dir") + customDir + "/.sgit/"
       // We add it the path of our log file
       val pathFile = pathDir + "log/log"
-      // If it is our first commit, we give our sub commit the value "0" 40 time.
-      if(shaSubCommit == null)
-        {
-          FileApi.utilWriter(pathFile,"0"*40 + " " + shaValue)
-        }
-      else
-        {
-          FileApi.utilWriter(pathFile, shaSubCommit + " " + shaValue)
-        }
+      FileApi.utilWriter(pathFile, shaSubCommit + " " + shaValue)
       // We write the name of our branch
       FileApi.utilWriter(pathFile, "Branch: " + SgitApi.getBranchFile(customDir).getName)
       // We write the name of the author of the commit
@@ -53,7 +46,9 @@ object log {
     {
       // We get all of our commits from our log file and reverse it to have our newest at the beginning
       val logContent = FileApi.listFromFile(System.getProperty("user.dir") + "/.sgit/log/log",0).grouped(6).toList
-      val logContentSha = logContent.map(x=> x.head)
+      val logContentSha = logContent.map(x=> x.headOption.getOrElse(
+        throw new RuntimeException("Error: Impossible to get the sha of the commits for the log to print")
+      ))
       val logContentUniqueSha = logContentSha.map(x => x.substring(41)).reverse
       // We compare each commit with its subcommit
       logContentUniqueSha.foreach(x => SgitApi.diffBetweenCommits(x))

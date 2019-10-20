@@ -2,14 +2,12 @@ package sgit.commands
 
 import java.io.File
 
-import api.{CustomHasher, FileApi, ObjectApi, SgitApi, TimeApi}
+import api._
 import sgit.objects.{Blob, Tree}
 
-case class commit (shaValue: String, associatedTree: Tree, commitMessage: String = null, subCommit: commit = null)
+object Commit {
 
-object commit {
-
-  def commit(commitMessage: String = null, customDir: String = ""): Unit =
+  def commit(commitMessage: Option[String] = None, customDir: String = ""): Unit =
     {
       val pathProject = System.getProperty("user.dir") + customDir
       // We get the path of our index
@@ -38,7 +36,7 @@ object commit {
           if(!listOfCommits.contains(shaCommit))
             {
               // We create our commit and we give it as sub commit the previous commit made
-              createCommit(shaCommit,commitTree,commitMessage, SgitApi.getCurrentCommit(customDir).head, customDir = customDir)
+              createCommit(shaCommit,commitTree,commitMessage, Some(SgitApi.getCurrentCommit(customDir).head), customDir = customDir)
             }
           else
             {
@@ -49,7 +47,8 @@ object commit {
       SgitApi.updateRef(shaCommit)
     }
 
-  def createCommit(shaValue: String, associatedTree: Tree, commitMessage: String = null, shaSubCommit: String = null, customDir: String = ""): Unit =
+  def createCommit(shaValue: String, associatedTree: Tree, commitMessage: Option[String] = None,
+                   shaSubCommit: Option[String] = None, customDir: String = ""): Unit =
   {
     // We create our commit directory and get the path of our commit file
     val commitFile = ObjectApi.CreateObject("commits", shaValue, customDir)
@@ -63,26 +62,24 @@ object commit {
     // We get the list of our commits directories
     val commitsDir = FileApi.getSubDir(new File(System.getProperty("user.dir") + customDir + "/.sgit/objects/commits"))
     // We write our commit message if one was given
-    if(commitMessage != null)
-      {
-        FileApi.utilWriter(commitFile, commitMessage)
-      }
+    commitMessage match {
+      case Some(commitMessage) => FileApi.utilWriter(commitFile, commitMessage)
       // Else, we simply write the number of the commit
-    else
-      {
-        // We write our default commit message
-        FileApi.utilWriter(commitFile, "Commit number " + commitsDir.size)
-      }
+      case None => FileApi.utilWriter(commitFile, "Commit number " + commitsDir.size)
+    }
     // If we have a sub commit, we add it aswell in our file
-    if(shaSubCommit != null)
-      {
-        FileApi.utilWriter(commitFile, "subcommit " + shaSubCommit)
-      }
+    shaSubCommit match {
+      case Some(sha) => FileApi.utilWriter(commitFile, "subcommit " + sha)
+      case None =>
+    }
     // We then need to put in our ref file the sha of our new commit
     SgitApi.updateRef(shaValue,customDir)
     // We add our commit to our log
-    log.createLog(shaValue, if (commitMessage == null) "Commit number " + commitsDir.size else commitMessage,
-      committerName, shaSubCommit, customDir)
+    Log.createLog(shaValue,
+      commitMessage match {
+        case Some(message) => message
+        case None => "Commit number " + commitsDir.size
+      }, committerName, shaSubCommit.getOrElse("0"*40), customDir)
   }
 
   // This method allows us, with a sha, to retrieve the name of the commit associated with it

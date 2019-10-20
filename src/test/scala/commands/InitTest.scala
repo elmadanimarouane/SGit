@@ -2,8 +2,8 @@ package commands
 
 import java.io.File
 
-import sgit.commands.init
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
+import sgit.commands.Init
 
 import scala.reflect.io.Directory
 
@@ -27,9 +27,9 @@ class InitTest extends FunSpec with BeforeAndAfter with Matchers {
   {
     it("Should create our full .sgit repo with every file needed")
     {
-      init.initSgitDir(testDir)
+      Init.initSgitDir(testDir)
       // Our testDir should be a .sgit directory now
-      init.isSgitDir(fullTestDirPath) shouldBe true
+      Init.isSgitDir(fullTestDirPath) shouldBe true
       // We now check that every file was created
       val logDir = new File(fullTestDirPath + "/.sgit/log")
       logDir.isDirectory shouldBe true

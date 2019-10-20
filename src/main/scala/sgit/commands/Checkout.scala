@@ -4,18 +4,18 @@ import java.io.File
 
 import api.{FileApi, SgitApi}
 
-object checkout {
+object Checkout {
 
   // This method allows us to switch between commits, branch or tags
   def checkout(paramCheckout: String, customDir: String = ""): Unit =
     {
       // We first need to be sure that the argument is either a branch, tag or commit
       // We first get our list of commits
-      val listOfCommits = commit.getCommits(customDir)
+      val listOfCommits = Commit.getCommits(customDir)
       // We then get our list of branches
-      val listOfBranches = branch.getBranches(customDir).map(x => x.getName)
+      val listOfBranches = Branch.getBranches(customDir).map(x => x.getName)
       // We finally get our list of tags
-      val listOfTags = tag.getTags(customDir).map(x => x.getName)
+      val listOfTags = Tag.getTags(customDir).map(x => x.getName)
       // Now that we have the three lists, we can check to what correspond our parameter
       // We start with the commits. We check first if our list of commits is not empty
       if(listOfCommits.nonEmpty)
@@ -93,6 +93,6 @@ object checkout {
       pathList.foreach(pathFile => blobContent.foreach(listLine => listLine.foreach(line =>
         FileApi.utilWriter(pathFile.getPath,line))))
       // We add them back to our index file
-      pathList.foreach(file => add.add(file, customDir))
+      pathList.foreach(file => Add.add(file, customDir))
     }
 }

@@ -3,8 +3,8 @@ package commands
 import java.io.File
 
 import api.FileApi
-import sgit.commands.{add, init}
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
+import sgit.commands.{Add, Init}
 
 import scala.reflect.io.Directory
 
@@ -23,7 +23,7 @@ class AddTest extends FunSpec with BeforeAndAfter with Matchers{
   before
   {
     testDirFile.mkdir()
-    init.initSgitDir(testDir)
+    Init.initSgitDir(testDir)
     testFile1.createNewFile()
     FileApi.utilWriter(testFile1.getPath,"Test1")
     subDir.mkdir()
@@ -41,7 +41,7 @@ class AddTest extends FunSpec with BeforeAndAfter with Matchers{
     it("Should create two blobs and change our index file")
     {
       // We add our first file
-      add.add(testFile1, testDir)
+      Add.add(testFile1, testDir)
       // We get our blobs directory
       val blobsDir = fullTestDirPath + "/.sgit/objects/blobs"
       // We should have a folder in our blobs directory
@@ -63,8 +63,8 @@ class AddTest extends FunSpec with BeforeAndAfter with Matchers{
       val blobContent = FileApi.listFromFile(blobsDir + "/" + shaValue.substring(0,2) + "/"
         + shaValue.substring(2),0).head
       file1Content == blobContent shouldBe true
-      // We add our second file
-      add.add(testFile2, testDir)
+      // We add our second file by giving as input our directory instead of the file
+      Add.add(subDir, testDir)
       // We check that we have indeed two blobs
       FileApi.getSubDir(new File(blobsDir)).size == 2 shouldBe true
       // We check that our index has two lines

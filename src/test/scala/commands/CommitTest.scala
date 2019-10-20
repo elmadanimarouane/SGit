@@ -3,8 +3,8 @@ package commands
 import java.io.File
 
 import api.FileApi
-import sgit.commands.{add, commit, init}
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
+import sgit.commands.{Add, Commit, Init}
 
 import scala.reflect.io.Directory
 
@@ -22,14 +22,14 @@ class CommitTest extends FunSpec with BeforeAndAfter with Matchers{
   before
   {
     testDirFile.mkdir()
-    init.initSgitDir(testDir)
+    Init.initSgitDir(testDir)
     testFile1.createNewFile()
     FileApi.utilWriter(testFile1.getPath,"Test1")
     subDir.mkdir()
     testFile2.createNewFile()
     FileApi.utilWriter(testFile2.getPath, "Test2")
-    add.add(testFile1, testDir)
-    add.add(testFile2, testDir)
+    Add.add(testFile1, testDir)
+    Add.add(testFile2, testDir)
   }
   // After our test, we delete our test directory with everything inside of it
   after
@@ -42,7 +42,7 @@ class CommitTest extends FunSpec with BeforeAndAfter with Matchers{
     it("Should create a tree, a commit, a master file and this file should contain the sha of our commit")
     {
       // We make a commit
-      commit.commit("Commit test", testDir)
+      Commit.commit(Some("Commit test"), testDir)
       // We check that our commit is indeed created
       val commitsDir = fullTestDirPath + "/.sgit/objects/commits"
       // We check that we have indeed a directory inside of our commits directory
@@ -74,9 +74,9 @@ class CommitTest extends FunSpec with BeforeAndAfter with Matchers{
       val logContent = FileApi.listFromFile(logDir,0).head
       logContent == "0"*40 + " " + shaValue shouldBe true
       // We check that our commit name is correct
-      commit.getCommitName(shaValue,testDir) == "Commit test" shouldBe true
+      Commit.getCommitName(shaValue,testDir) == "Commit test" shouldBe true
       // We check that we can get our commit
-      commit.getCommits(testDir).head == shaValue shouldBe true
+      Commit.getCommits(testDir).head == shaValue shouldBe true
     }
   }
 }

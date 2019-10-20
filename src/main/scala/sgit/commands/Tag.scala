@@ -4,7 +4,7 @@ import java.io.File
 
 import api.{FileApi, SgitApi}
 
-object tag {
+object Tag {
 
   // This method allows us to create a tag
   def tag(tagName: String, customDir: String = ""): Unit =
@@ -12,7 +12,7 @@ object tag {
       // We get our current branch file (located in refs/heads)
       val currentBranch = SgitApi.getBranchFile(customDir)
       // We check if we have already done a commit before or not
-      if(commit.getCommits(customDir).nonEmpty)
+      if(Commit.getCommits(customDir).nonEmpty)
         {
           // If it is the case, we get the last commit made in the branch
           val currentShaCommit = FileApi.listFromFile(currentBranch.getPath,0)

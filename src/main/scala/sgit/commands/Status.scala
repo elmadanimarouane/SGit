@@ -1,10 +1,8 @@
 package sgit.commands
 
-import java.io.File
-
 import api.{FileApi, SgitApi}
 
-object status {
+object Status {
 
   def status(customDir: String = ""): Unit =
     {
@@ -16,7 +14,6 @@ object status {
       val listOfFiles = FileApi.getFilesAllDir(pathProject)
       // We filter our list of files to keep only the files that weren't stored in our index file (and therefore, our
       // new files)
-      println(listOfFiles)
       val listOfUntracktedFiles = listOfFiles.filterNot(listOfKeptFiles)
       // We get the list of the files that have been modified
       val listOfModifiedFiles = SgitApi.modifiedFiles(customDir)

@@ -2,7 +2,6 @@ package api
 
 import java.io.File
 
-import api.treeApi.TreeApi
 import sgit.objects.Blob
 
 object SgitApi {
@@ -115,13 +114,20 @@ object SgitApi {
     // We get the content
     val commitContent = FileApi.listFromFile(commitFile.getPath,0)
     // We get the content of our blobs from our commit
-    val commitTree = FileApi.listFromFile(commitFile.getPath,0).head.substring(5)
+    val commitTree = FileApi.listFromFile(commitFile.getPath,0).headOption.getOrElse(
+      throw new RuntimeException("Error: the head of the tree is empty")
+    ).substring(5)
     val commitTreeContent = FileApi.listFromFile(TreeApi.getTreeFile(commitTree).getPath,5)
     // We check if we have a subcommit
-    if(commitContent.reverse.head.contains("subcommit"))
+    val commitContentHead = commitContent.headOption.getOrElse(
+      throw new RuntimeException("Error: the content of the commit is empty")
+    )
+    if(commitContentHead.contains("subcommit"))
       {
         // If it is the case, we get our subcommit
-        val subCommitSha = commitContent.reverse.head.substring(10)
+        val subCommitSha = commitContent.reverse.headOption.getOrElse(
+          throw new RuntimeException("Error: impossible to get the subCommit. The end of the commit content is empty")
+        ).substring(10)
         // We get the content of our commits (the sha of the tree associated to our commit)
         val subCommitTree = FileApi.listFromFile(getCommitBySha(subCommitSha).getPath,0).head.substring(5)
         // We get the content of our trees (the sha and the file path)
@@ -187,7 +193,8 @@ object SgitApi {
           // We check if our new file is smaller than our previous, which means some lines were removed
           if(initialContent.size >= finalContent.size)
           {
-            // If our new line is not in the old file
+            // If our new line is not in the old file and is not at the end of our file (to handle the case of printing
+            // empty +)
             if((combinedList.reverse.head._1 != line._1 || !line._1.isEmpty) && !initialContent.contains(line._1))
             {
               // This means the line was added
