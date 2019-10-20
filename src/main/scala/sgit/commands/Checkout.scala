@@ -70,7 +70,9 @@ object Checkout {
       val shaPath = projectPath+"/.sgit/objects/commits/"+shaValue.substring(0,2)+"/"+shaValue.substring(2)
       // We get our tree stored in our sha. Note : We are forced to do our substring later since our tree contain
       // an empty line
-      val treeValue = FileApi.listFromFile(shaPath,0).head.substring(5)
+      val treeValue = FileApi.listFromFile(shaPath,0).headOption.getOrElse(
+        throw new RuntimeException("Error: Impossible to get the tree sha. Empty line found instead of a sha value")
+      ).substring(5)
       // We get our tree path
       val treePath = projectPath+"/.sgit/objects/trees/"+treeValue.substring(0,2)+"/"+treeValue.substring(2)
       // We read the whole content of our tree file by removing the "blob" attribute

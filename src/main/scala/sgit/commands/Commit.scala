@@ -103,6 +103,8 @@ object Commit {
       // We get all of our directories in our commit directory
       val commitsDir = FileApi.getSubDir(new File(commitsPath))
       // We then get all of our commits
-      commitsDir.map(x => x.getName + FileApi.getFilesSingleDir(x.getPath).head.getName)
+      commitsDir.map(x => x.getName + FileApi.getFilesSingleDir(x.getPath).headOption.getOrElse(
+        throw new RuntimeException("Error: Impossible to get a commit sha. Empty line encountered")
+      ).getName)
     }
 }

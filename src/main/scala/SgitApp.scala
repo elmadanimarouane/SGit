@@ -88,6 +88,7 @@ object SgitApp extends App {
         case "add" if isSgitRepo =>
           if(arguments.listFile.nonEmpty)
             {
+              // We don't use HeadOption here because we already made sure our list is not empty
               if(arguments.listFile.head == ".") Add.addAll() else arguments.listFile.foreach(file => Add.add(new File(file)))
             }
         case "commit" if isSgitRepo => Commit.commit(Some(arguments.inputArg))

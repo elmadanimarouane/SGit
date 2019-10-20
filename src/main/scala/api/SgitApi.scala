@@ -115,7 +115,7 @@ object SgitApi {
     val commitContent = FileApi.listFromFile(commitFile.getPath,0)
     // We get the content of our blobs from our commit
     val commitTree = FileApi.listFromFile(commitFile.getPath,0).headOption.getOrElse(
-      throw new RuntimeException("Error: the head of the tree is empty")
+      throw new RuntimeException("Error: the tree file is empty")
     ).substring(5)
     val commitTreeContent = FileApi.listFromFile(TreeApi.getTreeFile(commitTree).getPath,5)
     // We check if we have a subcommit
@@ -126,10 +126,13 @@ object SgitApi {
       {
         // If it is the case, we get our subcommit
         val subCommitSha = commitContent.reverse.headOption.getOrElse(
-          throw new RuntimeException("Error: impossible to get the subCommit. The end of the commit content is empty")
+          throw new RuntimeException("Error: The content of the commit is empty")
         ).substring(10)
         // We get the content of our commits (the sha of the tree associated to our commit)
-        val subCommitTree = FileApi.listFromFile(getCommitBySha(subCommitSha).getPath,0).head.substring(5)
+        val subCommitTree = FileApi.listFromFile(getCommitBySha(subCommitSha).getPath,0).headOption.
+          getOrElse(
+            throw new RuntimeException("Error: The commit file is empty and it shouldn't be")
+          ).substring(5)
         // We get the content of our trees (the sha and the file path)
         val subCommitTreeContent = FileApi.listFromFile(TreeApi.getTreeFile(subCommitTree).getPath,5)
         // We check if we haven't added a new file
@@ -195,7 +198,10 @@ object SgitApi {
           {
             // If our new line is not in the old file and is not at the end of our file (to handle the case of printing
             // empty +)
-            if((combinedList.reverse.head._1 != line._1 || !line._1.isEmpty) && !initialContent.contains(line._1))
+            val lastLineInitialFile = combinedList.reverse.headOption.getOrElse(
+              throw new RuntimeException("Error: The two files compared are empty and they shouldn't be")
+            )._1
+            if((lastLineInitialFile != line._1 || !line._1.isEmpty) && !initialContent.contains(line._1))
             {
               // This means the line was added
               println(Console.GREEN + " + " + line._1)
@@ -226,7 +232,10 @@ object SgitApi {
               print(Console.WHITE)
             }
             // If our old line is not in the new file
-            if((combinedList.reverse.head._2 != line._2 || !line._2.isEmpty) && !finalContent.contains(line._2))
+            val lastLineFinalFile = combinedList.reverse.headOption.getOrElse(
+              throw new RuntimeException("Error: The two files compared are empty and they shouldn't be")
+            )._2
+            if((lastLineFinalFile != line._2 || !line._2.isEmpty) && !finalContent.contains(line._2))
             {
               // This means the line was removed
               println(Console.RED + " - " + line._2)

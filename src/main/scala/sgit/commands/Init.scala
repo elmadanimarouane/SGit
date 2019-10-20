@@ -13,7 +13,7 @@ object Init {
     directory.listFiles().map(_.getName).contains(".sgit")
   }
 
-  private def sgitDirBuilder(customDir: String = ""): Unit =
+  private[this] def sgitDirBuilder(customDir: String = ""): Unit =
     {
       // We get our current repository
       val currSgitDir = System.getProperty("user.dir") + customDir + "/.sgit"
@@ -79,22 +79,4 @@ object Init {
         println("Initialized empty SGit repository in " + currDir + customDir + "/.sgit")
       }
   }
-
-  /*
-  def main(args: Array[String]): Unit = {
-    // status.status()
-    // initSgitDir()
-    // add.add(new File("/home/marouane/Desktop/IG5/Sgit/src/test2.txt"))
-    // commit.commit("Third commit")
-    // log.log()
-    // branch.listBranches()
-    // branch.branch("Test branch")
-    // tag.tag("First tag")
-    // checkout.checkout("master") C17385C11B873CC6A5602AE8830FF4FF77543062
-    // diff.diff()
-    // SgitApi.diffBetweenCommits("06EB83196D9B90F8E76FD27B513B019AEBB92342")
-    log.logP()
-  }
-   */
-
 }
