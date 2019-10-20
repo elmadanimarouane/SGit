@@ -11,8 +11,7 @@ import scala.reflect.io.Directory
 class BranchTest extends FunSpec with BeforeAndAfter with Matchers{
 
   // We create a temporary directory that we will use for our test
-  val testDir = "/testDir"
-  val fullTestDirPath: String = System.getProperty("user.dir") + testDir
+  val fullTestDirPath: String = System.getProperty("user.dir") + "/testDir"
   val testDirFile: File = new File(fullTestDirPath)
   // We create a test file that we will use for our test
   val testFile = new File(fullTestDirPath + "/testFile")
@@ -20,11 +19,11 @@ class BranchTest extends FunSpec with BeforeAndAfter with Matchers{
   before
   {
     testDirFile.mkdir()
-    Init.initSgitDir(testDir)
+    Init.initSgitDir(fullTestDirPath)
     testFile.createNewFile()
     FileApi.utilWriter(testFile.getPath,"Test")
-    Add.add(testFile, testDir)
-    Commit.commit(Some("Commit test"), testDir)
+    Add.add(testFile, fullTestDirPath)
+    Commit.commit(Some("Commit test"), fullTestDirPath)
   }
   // After the test we delete it
   after
@@ -37,12 +36,12 @@ class BranchTest extends FunSpec with BeforeAndAfter with Matchers{
     it("Should create a branch by adding a file in our refs/heads directory")
     {
       // We create our branch
-      Branch.branch("TestBranch", testDir)
+      Branch.branch("TestBranch", fullTestDirPath)
       // We check that our branch file was indeed created
       val branchPath = fullTestDirPath + "/.sgit/refs/heads/TestBranch"
       new File(branchPath).isFile shouldBe true
       // We check that we have indeed two branches (our new and the master one) in our directory
-      Branch.getBranches(testDir).size shouldBe 2
+      Branch.getBranches(fullTestDirPath).size shouldBe 2
     }
   }
 

@@ -10,8 +10,7 @@ import scala.reflect.io.Directory
 
 class CheckoutTest extends FunSpec with BeforeAndAfter with Matchers{
   // We create a temporary directory that we will use for our test
-  val testDir = "/testDir"
-  val fullTestDirPath: String = System.getProperty("user.dir") + testDir
+  val fullTestDirPath: String = System.getProperty("user.dir") + "/testDir"
   val testDirFile: File = new File(fullTestDirPath)
   // We create three test files that we will use for our test, with one in a directory beneath our test directory
   val testFile1 = new File(fullTestDirPath + "/testFile1")
@@ -24,12 +23,12 @@ class CheckoutTest extends FunSpec with BeforeAndAfter with Matchers{
   before
   {
     testDirFile.mkdir()
-    Init.initSgitDir(testDir)
+    Init.initSgitDir(fullTestDirPath)
     testFile1.createNewFile()
     FileApi.utilWriter(testFile1.getPath,"Test")
-    Add.add(testFile1, testDir)
-    Commit.commit(customDir = testDir)
-    Branch.branch("TestBranch", testDir)
+    Add.add(testFile1, fullTestDirPath)
+    Commit.commit(userPath = fullTestDirPath)
+    Branch.branch("TestBranch", fullTestDirPath)
   }
   // After our test, we delete our test directory with everything inside of it
   after
@@ -43,22 +42,22 @@ class CheckoutTest extends FunSpec with BeforeAndAfter with Matchers{
       "get back our first file")
     {
       // We add and commit our first file
-      Add.add(testFile1, testDir)
-      Commit.commit(customDir = testDir)
+      Add.add(testFile1, fullTestDirPath)
+      Commit.commit(userPath = fullTestDirPath)
       // We first check that we have indeed our first file
       testFile1.isFile shouldBe true
       // We then checkout to our test branch in which we did no commits. This should clear our repository
-      Checkout.checkout("TestBranch", testDir)
+      Checkout.checkout("TestBranch",fullTestDirPath)
       testFile1.isFile shouldBe false
       // We add our second file
       subDir.mkdir()
       testFile2.createNewFile()
-      Add.add(testFile2,testDir)
-      Commit.commit(customDir = testDir)
+      Add.add(testFile2,fullTestDirPath)
+      Commit.commit(userPath = fullTestDirPath)
       // We check that we have indeed our second file
       testFile2.isFile shouldBe true
       // We then checkout to our first branch
-      Checkout.checkout("master", testDir)
+      Checkout.checkout("master", fullTestDirPath)
       testFile2.isFile shouldBe false
       // We check that we have our first file
       testFile1.isFile shouldBe true
@@ -70,26 +69,26 @@ class CheckoutTest extends FunSpec with BeforeAndAfter with Matchers{
     it("Should get back to our first commit when we checkout, then get back to our second commit")
     {
       // We add and commit our first file
-      Add.add(testFile1, testDir)
-      Commit.commit(customDir = testDir)
+      Add.add(testFile1, fullTestDirPath)
+      Commit.commit(userPath = fullTestDirPath)
       // We get the sha value of our first commit
-      val firstCommit = Commit.getCommits(testDir).head
+      val firstCommit = Commit.getCommits(fullTestDirPath).head
       // We do a second commit with our second file
       subDir.mkdir()
       testFile2.createNewFile()
-      Add.add(testFile2,testDir)
-      Commit.commit(customDir = testDir)
+      Add.add(testFile2,fullTestDirPath)
+      Commit.commit(userPath = fullTestDirPath)
       // We get the sha value of our first commit
-      val secondCommit = Commit.getCommits(testDir).filter(sha => sha != firstCommit).head
+      val secondCommit = Commit.getCommits(fullTestDirPath).filter(sha => sha != firstCommit).head
       // We check that we have indeed our second file
       testFile2.isFile shouldBe true
       // We checkout to our first commit
-      Checkout.checkout(firstCommit, testDir)
+      Checkout.checkout(firstCommit, fullTestDirPath)
       // We should no longer have our second file and have our first file
       testFile2.isFile shouldBe false
       testFile1.isFile shouldBe true
       // We go back to our second commit
-      Checkout.checkout(secondCommit, testDir)
+      Checkout.checkout(secondCommit, fullTestDirPath)
       // We should have back our second file
       testFile2.isFile shouldBe true
     }
@@ -100,19 +99,19 @@ class CheckoutTest extends FunSpec with BeforeAndAfter with Matchers{
     it("Should get back to our commit when we checkout with a tag")
     {
       // We add and commit our first file
-      Add.add(testFile1, testDir)
-      Commit.commit(customDir = testDir)
+      Add.add(testFile1, fullTestDirPath)
+      Commit.commit(userPath = fullTestDirPath)
       // We create a tag
-      Tag.tag("TestTag", testDir)
+      Tag.tag("TestTag", fullTestDirPath)
       // We add and commit our second file
       subDir.mkdir()
       testFile2.createNewFile()
-      Add.add(testFile2,testDir)
-      Commit.commit(customDir = testDir)
+      Add.add(testFile2,fullTestDirPath)
+      Commit.commit(userPath = fullTestDirPath)
       // We check that we have our second file
       testFile2.isFile shouldBe true
       // We checkout with our tag
-      Checkout.checkout("TestTag", testDir)
+      Checkout.checkout("TestTag", fullTestDirPath)
       // We should no longer have our second file
       testFile2.isFile shouldBe false
       // We should still have our first file

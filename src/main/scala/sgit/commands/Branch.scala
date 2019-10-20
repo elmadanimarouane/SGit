@@ -7,10 +7,10 @@ import api.{FileApi, SgitApi}
 object Branch {
 
   // This method allows us to create a new branch
-  def branch(nameBranch: String, customDir: String = ""): Unit =
+  def branch(nameBranch: String, userPath: String): Unit =
     {
       // We get the path of our heads from our project
-      val headsPath = System.getProperty("user.dir") + customDir + "/.sgit/refs/heads/"
+      val headsPath = userPath + "/.sgit/refs/heads/"
       // We create a file object of our branch
       val branchObject = new File(headsPath + nameBranch)
       // We check if it exists. If it is the case, we tell to the user that this branch already exists. If not, we
@@ -26,22 +26,22 @@ object Branch {
     }
 
   // This method allows us to get all of our branches
-  def getBranches(customDir: String = ""): List[File] =
+  def getBranches(userPath: String): List[File] =
     {
       // We get the path of our heads
-      val headsPath = System.getProperty("user.dir") + customDir + "/.sgit/refs/heads"
+      val headsPath = userPath + "/.sgit/refs/heads"
       // We get all of our heads files with the name of their branch
       FileApi.getFilesSingleDir(headsPath)
     }
 
   // This method allows us to print all of our branches
-  def listBranches(customDir: String = ""): Unit = getBranches(customDir).foreach(x => printBranch(x, customDir))
+  def listBranches(userPath: String): Unit = getBranches(userPath).foreach(x => printBranch(x, userPath))
 
   // This method allows us to print a branch
-  def printBranch(branchFile: File, customDir: String = ""): Unit =
+  def printBranch(branchFile: File, userPath: String): Unit =
     {
       // We get our current branch
-      val currentBranch = SgitApi.getBranchFile(customDir)
+      val currentBranch = SgitApi.getBranchFile(userPath)
       // If the branch is our actual branch, we add a little "*" before it
       if(branchFile == currentBranch)
         {
@@ -56,7 +56,7 @@ object Branch {
       // If it is empty, we don't print anything more. Else, we print the last commit and its name
       if(branchContent.nonEmpty)
         {
-          println(branchContent.head.substring(0,7) + " " + Commit.getCommitName(branchContent.head))
+          println(branchContent.head.substring(0,7) + " " + Commit.getCommitName(branchContent.head, userPath))
         }
       else
         {

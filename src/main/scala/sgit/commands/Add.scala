@@ -9,17 +9,17 @@ import scala.io.Source
 object Add {
 
   // This method allows us to add a single file
-  def add(file: File, customDir: String = ""): Unit =
+  def add(file: File, userPath: String): Unit =
   {
     // We first check that we have indeed a correct file
     if(file.isFile)
       {
-        addFile(file, customDir)
+        addFile(file, userPath)
       }
       // Else, we check if it is a directory
     else if(file.isDirectory)
       {
-        addDirectory(file, customDir)
+        addDirectory(file, userPath)
       }
     // Else, we don't have a correct file and thus, we print it to the user
     else
@@ -29,7 +29,7 @@ object Add {
   }
 
   // This method allows us to add a file
-  def addFile(file: File, customDir: String = ""): Unit =
+  def addFile(file: File, userPath: String): Unit =
     {
       // We first convert our file into a SHA string
       val shaValue = FileApi.encodeSha(file)
@@ -39,7 +39,7 @@ object Add {
 
       // We check if a directory with the same two char of our SHA exist. If it is the case, we don't do something. Else,
       // We initiate the add process
-      val projectDir = System.getProperty("user.dir") + customDir + "/.sgit/objects/blobs"
+      val projectDir = userPath + "/.sgit/objects/blobs"
       val objectDir = new File(projectDir)
       if(!objectDir.listFiles().map(_.getName).contains(shaValueFirstTwo))
       {
@@ -67,7 +67,7 @@ object Add {
           }
       }
 
-      val indexPath = System.getProperty("user.dir") + customDir + "/.sgit/index"
+      val indexPath = userPath + "/.sgit/index"
       // We check our index file if our path is not already in it (in the case of adding a file that we modified)
       val pathsStoredInIndex = FileApi.listFromFile(indexPath, 41)
       // We convert our list of string into a list of file
@@ -102,18 +102,18 @@ object Add {
       }
     }
 
-  def addDirectory(dir: File, customDir: String = ""): Unit =
+  def addDirectory(dir: File, userPath: String): Unit =
     {
       // We get all of our file in our directory
       val listOfFiles = FileApi.getFilesAllDir(dir.getAbsolutePath)
       // We add them all
-      listOfFiles.foreach(file => add(file, customDir))
+      listOfFiles.foreach(file => add(file, userPath))
     }
 
   // This method allows us to add all the file of our project (excluding our .sgit directory)
-  def addAll(customDir: String = ""): Unit =
+  def addAll(userPath: String): Unit =
     {
-      val allFiles = FileApi.getFilesAllDir(System.getProperty("user.dir") + customDir)
-      allFiles.foreach(file => add(file))
+      val allFiles = FileApi.getFilesAllDir(userPath)
+      allFiles.foreach(file => add(file, userPath))
     }
 }

@@ -13,10 +13,10 @@ object Init {
     directory.listFiles().map(_.getName).contains(".sgit")
   }
 
-  private[this] def sgitDirBuilder(customDir: String = ""): Unit =
+  private[this] def sgitDirBuilder(userPath: String): Unit =
     {
       // We get our current repository
-      val currSgitDir = System.getProperty("user.dir") + customDir + "/.sgit"
+      val currSgitDir = userPath + "/.sgit"
       // We initialize all of our directories that we will need
       val sgitDir = new File(currSgitDir)
       sgitDir.mkdir()
@@ -64,19 +64,17 @@ object Init {
       logFile.createNewFile()
     }
 
-  def initSgitDir(customDir: String = ""): Unit =
+  def initSgitDir(userPath: String): Unit =
   {
-    // We get the name of our directory
-    val currDir = System.getProperty("user.dir")
-    if(isSgitDir(currDir + customDir))
+    if(isSgitDir(userPath))
       {
         println("This repo is already a Sgit repo")
       }
     else
       {
         // Creating our .sgit directory
-        sgitDirBuilder(customDir)
-        println("Initialized empty SGit repository in " + currDir + customDir + "/.sgit")
+        sgitDirBuilder(userPath)
+        println("Initialized empty SGit repository in " + userPath + "/.sgit")
       }
   }
 }

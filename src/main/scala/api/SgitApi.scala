@@ -7,22 +7,20 @@ import sgit.objects.Blob
 object SgitApi {
 
   // This method allows us to get all of our modified files
-  def modifiedFiles(customDir: String = ""): Iterable[(Blob, Boolean)] =
+  def modifiedFiles(userPath: String): Iterable[(Blob, Boolean)] =
   {
     // We get the files that we kept in our index file
-    val listOfKeptFiles = FileApi.getListOfKeptFiles(customDir)
-    // We get the path of our project
-    val pathProject = System.getProperty("user.dir") + customDir
+    val listOfKeptFiles = FileApi.getListOfKeptFiles(userPath)
     // We get all of our files. If our list of files is empty, it means that we don't have any sub directory.
     // We should then get all of our files in our directory
-    val listOfFiles = if(FileApi.getFilesAllDir(pathProject).isEmpty) FileApi.getAllFilesFromSingleDir(new File(pathProject))
-    else FileApi.getFilesAllDir(pathProject)
+    val listOfFiles = if(FileApi.getFilesAllDir(userPath).isEmpty) FileApi.getAllFilesFromSingleDir(new File(userPath))
+    else FileApi.getFilesAllDir(userPath)
     // We filter the tracked files by excluding from our list of all files the files that are not tracked
     val listOfTrackedFiles = listOfFiles.filter(listOfKeptFiles)
     // We convert our list of tracked files into lists of SHA1 and we keep only the first two char
     val listOfTrackedSha = listOfTrackedFiles.map(file => Blob(file, FileApi.encodeSha(file).substring(0,2)))
     // We get all of our directories from our "objects" folder
-    val listDirOfObjects = FileApi.getSubDir(new File(pathProject + "/.sgit/objects/blobs"))
+    val listDirOfObjects = FileApi.getSubDir(new File(userPath + "/.sgit/objects/blobs"))
     // We keep only the files that have been modified (and therefore, we keep only the files that have a SHA not
     // kept in our object directory)
     val listOfModifiedFilesBoolean = listOfTrackedSha.map(x => listDirOfObjects.map(_.getName).contains(x.sha))
@@ -30,10 +28,10 @@ object SgitApi {
   }
 
   // This method allows us to get our branch file
-  def getBranchFile(customDir: String = ""): File =
+  def getBranchFile(userPath: String): File =
     {
       // We get the path of our project
-      val projectPath = System.getProperty("user.dir") + customDir + "/.sgit/"
+      val projectPath = userPath + "/.sgit/"
       // We first retrieve in which branch we are on
       val actualBranch = FileApi.listFromFile(projectPath + "HEAD", 5).headOption
       // We check if our branch exist. If it is not the case, we create it
@@ -44,10 +42,10 @@ object SgitApi {
     }
 
   // This method allows us to update our ref file pointing to the last commit
-  def updateRef(sha: String, customDir: String = ""): Unit =
+  def updateRef(sha: String, userPath: String): Unit =
     {
       // We get our branch file
-      val branchFile = getBranchFile(customDir)
+      val branchFile = getBranchFile(userPath)
       // We check if it exists
       if(branchFile.isFile)
         {
@@ -67,19 +65,19 @@ object SgitApi {
     }
 
   // This method allows us to get the SHA value of the last commit done
-  def getCurrentCommit(customDir: String = ""): List[String] =
+  def getCurrentCommit(userPath: String): List[String] =
     {
       // We get our branch file
-      val branchFile = getBranchFile(customDir)
+      val branchFile = getBranchFile(userPath)
       // We get the SHA stored in it and return it
       FileApi.listFromFile(branchFile.getPath, 0)
     }
 
   // This method allows us to change our branch
-  def changeBranch(branchName: String, customDir: String = ""): Unit =
+  def changeBranch(branchName: String, userPath: String): Unit =
     {
       // We get our HEAD file
-      val headFile = new File(System.getProperty("user.dir") + customDir + "/.sgit/HEAD")
+      val headFile = new File(userPath + "/.sgit/HEAD")
       // We create a temporary file where we write our new pointer to our branch
       val tmpFile = new File("/tmp/tempHEAD")
       FileApi.utilWriter(tmpFile.getPath, s"ref: refs/heads/$branchName")
@@ -88,36 +86,36 @@ object SgitApi {
     }
 
   // This method allows us to get the file of a commit based on its sha
-  def getCommitBySha(sha: String, customDir: String = ""): File =
+  def getCommitBySha(sha: String, userPath: String): File =
   {
     // We get the path of our commit
-    val commitPath = (System.getProperty("user.dir") + customDir + "/.sgit/objects/commits/" + sha.substring(0,2)
+    val commitPath = (userPath + "/.sgit/objects/commits/" + sha.substring(0,2)
       + "/" + sha.substring(2))
     // We return the file
     new File(commitPath)
   }
 
   // This method allows us to get the file of a blob based on its sha
-  def getBlobBySha(sha: String, customDir: String = ""): File =
+  def getBlobBySha(sha: String, userPath: String): File =
     {
-      val blobPath = (System.getProperty("user.dir") + customDir + "/.sgit/objects/blobs" + "/" + sha.substring(0,2)
+      val blobPath = (userPath + "/.sgit/objects/blobs" + "/" + sha.substring(0,2)
         + "/" + sha.substring(2))
       new File(blobPath)
     }
 
   // This method allows us to compare a commit with its subcommit
-  def diffBetweenCommits(commitSha: String): Unit =
+  def diffBetweenCommits(commitSha: String, userPath: String): Unit =
   {
     println("commit " + commitSha)
     // We get the file of our commit
-    val commitFile = getCommitBySha(commitSha)
+    val commitFile = getCommitBySha(commitSha, userPath)
     // We get the content
     val commitContent = FileApi.listFromFile(commitFile.getPath,0)
     // We get the content of our blobs from our commit
     val commitTree = FileApi.listFromFile(commitFile.getPath,0).headOption.getOrElse(
       throw new RuntimeException("Error: the tree file is empty")
     ).substring(5)
-    val commitTreeContent = FileApi.listFromFile(TreeApi.getTreeFile(commitTree).getPath,5)
+    val commitTreeContent = FileApi.listFromFile(TreeApi.getTreeFile(commitTree, userPath).getPath,5)
     // We check if we have a subcommit
     val commitContentHead = commitContent.headOption.getOrElse(
       throw new RuntimeException("Error: the content of the commit is empty")
@@ -129,12 +127,12 @@ object SgitApi {
           throw new RuntimeException("Error: The content of the commit is empty")
         ).substring(10)
         // We get the content of our commits (the sha of the tree associated to our commit)
-        val subCommitTree = FileApi.listFromFile(getCommitBySha(subCommitSha).getPath,0).headOption.
+        val subCommitTree = FileApi.listFromFile(getCommitBySha(subCommitSha, userPath).getPath,0).headOption.
           getOrElse(
             throw new RuntimeException("Error: The commit file is empty and it shouldn't be")
           ).substring(5)
         // We get the content of our trees (the sha and the file path)
-        val subCommitTreeContent = FileApi.listFromFile(TreeApi.getTreeFile(subCommitTree).getPath,5)
+        val subCommitTreeContent = FileApi.listFromFile(TreeApi.getTreeFile(subCommitTree, userPath).getPath,5)
         // We check if we haven't added a new file
         val newFiles = commitTreeContent.map(x => x.substring(41)).filterNot(y =>
           subCommitTreeContent.map(z => z.substring(41)).contains(y))
@@ -144,9 +142,9 @@ object SgitApi {
             val newFilesAndSha = commitTreeContent.filter(x => newFiles.contains(x.substring(41)))
             // We get the content of the blob of the sha gathered earlier
             val newFilesAndContent = newFilesAndSha.map(x =>
-              (x.substring(41), FileApi.listFromFile(getBlobBySha(x.substring(0,40)).getPath,0)))
+              (x.substring(41), FileApi.listFromFile(getBlobBySha(x.substring(0,40), userPath).getPath,0)))
             // We print its content
-            printAddedFiles(newFilesAndContent)
+            printAddedFiles(newFilesAndContent, userPath)
           }
         // We filter our two contents so we can get the files with the same path but not the same sha
         val modifiedFilesList = for {
@@ -155,14 +153,14 @@ object SgitApi {
           if firstTree.contains(secondTree.substring(41)) && !firstTree.contains(secondTree.substring(0,40))
         } yield (firstTree.substring(41), firstTree.substring(0,40), secondTree.substring(0,40))
         // We get the datas
-        val finalData = modifiedFilesList.map(x => FileApi.listFromFile(getBlobBySha(x._2).getPath,0))
-        val initialData = modifiedFilesList.map(x => FileApi.listFromFile(getBlobBySha(x._3).getPath,0))
+        val finalData = modifiedFilesList.map(x => FileApi.listFromFile(getBlobBySha(x._2, userPath).getPath,0))
+        val initialData = modifiedFilesList.map(x => FileApi.listFromFile(getBlobBySha(x._3, userPath).getPath,0))
         // We combine the two data with the name of our file
         val fullCombinedList = (modifiedFilesList.map(x => x._1), initialData, finalData).zipped.toList
         // We print the differences
         for(x <- fullCombinedList)
           {
-            println("Modification made in file " + x._1.replace(System.getProperty("user.dir"),""))
+            println("Modification made in file " + x._1.replace(userPath,""))
             diffBetweenTwoContent(x._2, x._3)
             println("")
           }
@@ -170,12 +168,12 @@ object SgitApi {
       // Else, we simply print the new content as addition of line
     else
       {
-        val newFileContent = commitTreeContent.map(x => FileApi.listFromFile(getBlobBySha(x.substring(0,40)).getPath,0))
+        val newFileContent = commitTreeContent.map(x => FileApi.listFromFile(getBlobBySha(x.substring(0,40), userPath).getPath,0))
         val newFileName = commitTreeContent.map(x => x.substring(41))
         // We fuse the name with the content
         val combinedNameAndContent = (newFileName, newFileContent).zipped.toList
         // We print the addition of lines
-        printAddedFiles(combinedNameAndContent)
+        printAddedFiles(combinedNameAndContent, userPath)
       }
   }
 
@@ -252,11 +250,11 @@ object SgitApi {
       }
     }
 
-  def printAddedFiles(addedFiles: Iterable[(String, List[String])]): Unit =
+  def printAddedFiles(addedFiles: Iterable[(String, List[String])], userPath: String): Unit =
     {
       for(x <- addedFiles)
       {
-        println("Added file " + x._1.replace(System.getProperty("user.dir"),""))
+        println("Added file " + x._1.replace(userPath,""))
         x._2.foreach(line => println(Console.GREEN + " + " + line))
         println(Console.WHITE)
       }

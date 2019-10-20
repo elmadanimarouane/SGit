@@ -10,8 +10,7 @@ import scala.reflect.io.Directory
 
 class CommitTest extends FunSpec with BeforeAndAfter with Matchers{
   // We create a temporary directory that we will use for our test
-  val testDir = "/testDir"
-  val fullTestDirPath: String = System.getProperty("user.dir") + testDir
+  val fullTestDirPath: String = System.getProperty("user.dir") + "/testDit"
   val testDirFile: File = new File(fullTestDirPath)
   // We create two test files that we will use for our test, with one in a directory beneath our test directory
   val testFile1 = new File(fullTestDirPath + "/testFile1")
@@ -22,14 +21,14 @@ class CommitTest extends FunSpec with BeforeAndAfter with Matchers{
   before
   {
     testDirFile.mkdir()
-    Init.initSgitDir(testDir)
+    Init.initSgitDir(fullTestDirPath)
     testFile1.createNewFile()
     FileApi.utilWriter(testFile1.getPath,"Test1")
     subDir.mkdir()
     testFile2.createNewFile()
     FileApi.utilWriter(testFile2.getPath, "Test2")
-    Add.add(testFile1, testDir)
-    Add.add(testFile2, testDir)
+    Add.add(testFile1, fullTestDirPath)
+    Add.add(testFile2, fullTestDirPath)
   }
   // After our test, we delete our test directory with everything inside of it
   after
@@ -42,7 +41,7 @@ class CommitTest extends FunSpec with BeforeAndAfter with Matchers{
     it("Should create a tree, a commit, a master file and this file should contain the sha of our commit")
     {
       // We make a commit
-      Commit.commit(Some("Commit test"), testDir)
+      Commit.commit(Some("Commit test"), fullTestDirPath)
       // We check that our commit is indeed created
       val commitsDir = fullTestDirPath + "/.sgit/objects/commits"
       // We check that we have indeed a directory inside of our commits directory
@@ -74,9 +73,9 @@ class CommitTest extends FunSpec with BeforeAndAfter with Matchers{
       val logContent = FileApi.listFromFile(logDir,0).head
       logContent == "0"*40 + " " + shaValue shouldBe true
       // We check that our commit name is correct
-      Commit.getCommitName(shaValue,testDir) == "Commit test" shouldBe true
+      Commit.getCommitName(shaValue,fullTestDirPath) == "Commit test" shouldBe true
       // We check that we can get our commit
-      Commit.getCommits(testDir).head == shaValue shouldBe true
+      Commit.getCommits(fullTestDirPath).head == shaValue shouldBe true
     }
   }
 }

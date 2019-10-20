@@ -7,17 +7,17 @@ import api.{FileApi, SgitApi}
 object Tag {
 
   // This method allows us to create a tag
-  def tag(tagName: String, customDir: String = ""): Unit =
+  def tag(tagName: String, userPath: String): Unit =
     {
       // We get our current branch file (located in refs/heads)
-      val currentBranch = SgitApi.getBranchFile(customDir)
+      val currentBranch = SgitApi.getBranchFile(userPath)
       // We check if we have already done a commit before or not
-      if(Commit.getCommits(customDir).nonEmpty)
+      if(Commit.getCommits(userPath).nonEmpty)
         {
           // If it is the case, we get the last commit made in the branch
           val currentShaCommit = FileApi.listFromFile(currentBranch.getPath,0)
           // Now that we have our commit, we can create our tag
-          val tagFile = new File(System.getProperty("user.dir") + customDir + s"/.sgit/refs/tags/$tagName")
+          val tagFile = new File(userPath + s"/.sgit/refs/tags/$tagName")
           tagFile.createNewFile()
           // We write in it our current commit
           FileApi.utilWriter(tagFile.getPath,currentShaCommit.head)
@@ -30,10 +30,10 @@ object Tag {
     }
 
   // This method allows us to get all of our tags
-  def getTags(customDir: String = ""): List[File] =
+  def getTags(userPath: String): List[File] =
     {
       // We get the path of our tags
-      val pathTags = System.getProperty("user.dir") + customDir + "/.sgit/refs/tags"
+      val pathTags = userPath + "/.sgit/refs/tags"
       // We get all of our tags
       FileApi.getFilesSingleDir(pathTags)
     }

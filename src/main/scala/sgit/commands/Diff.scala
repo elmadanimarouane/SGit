@@ -7,12 +7,12 @@ import api.{FileApi, SgitApi}
 object Diff {
 
   // This method allows us to get what was modified in our added files
-  def diff(customDir: String = ""): Unit =
+  def diff(userPath: String): Unit =
     {
       // We get the list of our modified blob only
-      val listOfModifiedBlob = SgitApi.modifiedFiles().map(x => x._1)
+      val listOfModifiedBlob = SgitApi.modifiedFiles(userPath).map(x => x._1)
       // We get a list of our tracked files
-      val listOfTrackedFiles = FileApi.getFullListOfKeptFiles(customDir)
+      val listOfTrackedFiles = FileApi.getFullListOfKeptFiles(userPath)
       // We combined the two lists with a for method. Note : we use a for method here because it is simpler to read
       // and understand than to use maps and filters
       val combinedList = for
@@ -23,7 +23,7 @@ object Diff {
         }
         yield (blob,new File(file))
       // We get the path of our objects directory
-      val currentObjectPath = System.getProperty("user.dir") + "/.sgit/objects/blobs/"
+      val currentObjectPath = userPath + "/.sgit/objects/blobs/"
       // We create a list of our initial data based on their content stored in our objects directory
       val initialData = combinedList.map(x => FileApi.listFromFile(currentObjectPath + x._2.getPath.substring(0,2)
         + "/" + x._2.getPath.substring(2,40),0))
@@ -35,7 +35,7 @@ object Diff {
       // We print our modifications
       for (x <- fullCombinedList)
         {
-          println("Modification made to file " + x._1.content.getPath.replace(System.getProperty("user.dir") + "/"
+          println("Modification made to file " + x._1.content.getPath.replace(userPath + "/"
             ,""))
           SgitApi.diffBetweenTwoContent(x._2, x._3)
         }

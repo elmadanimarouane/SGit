@@ -50,7 +50,7 @@ object SgitApp extends App {
         .text("Create a new branch. Note : It doesn't switch to the newly created branch")
         .action((_,c) => c.copy(command = "branch"))
         .children(
-        opt[String]("<branch name>")
+        arg[String]("<branch name>")
           .text("The name of the branch to create")
           .optional()
           .action((x,c) => c.copy(inputArg = x)),
@@ -78,24 +78,26 @@ object SgitApp extends App {
 
   def run(arguments: Arguments): Unit =
     {
+      // We get our current repository
+      val currRepo = System.getProperty("user.dir")
       // We make sure that our repo is indeed a sgit repo
-      val isSgitRepo = Init.isSgitDir(System.getProperty("user.dir"))
+      val isSgitRepo = Init.isSgitDir(currRepo)
       arguments.command match
         {
-        case "init" => Init.initSgitDir()
-        case "status" if isSgitRepo => Status.status()
-        case "diff" if isSgitRepo => Diff.diff()
+        case "init" => Init.initSgitDir(currRepo)
+        case "status" if isSgitRepo => Status.status(currRepo)
+        case "diff" if isSgitRepo => Diff.diff(currRepo)
         case "add" if isSgitRepo =>
           if(arguments.listFile.nonEmpty)
             {
               // We don't use HeadOption here because we already made sure our list is not empty
-              if(arguments.listFile.head == ".") Add.addAll() else arguments.listFile.foreach(file => Add.add(new File(file)))
+              if(arguments.listFile.head == ".") Add.addAll(currRepo) else arguments.listFile.foreach(file => Add.add(new File(file), currRepo))
             }
-        case "commit" if isSgitRepo => Commit.commit(Some(arguments.inputArg))
-        case "log" if isSgitRepo => if(!arguments.customBool) Log.log() else Log.logP()
-        case "branch" if isSgitRepo => if(!arguments.customBool) Branch.branch(arguments.inputArg) else Branch.listBranches()
-        case "checkout" if isSgitRepo => Checkout.checkout(arguments.inputArg)
-        case "tag" if isSgitRepo => Tag.tag(arguments.inputArg)
+        case "commit" if isSgitRepo => Commit.commit(Some(arguments.inputArg), currRepo)
+        case "log" if isSgitRepo => if(!arguments.customBool) Log.log(currRepo) else Log.logP(currRepo)
+        case "branch" if isSgitRepo => if(!arguments.customBool) Branch.branch(arguments.inputArg, currRepo) else Branch.listBranches(currRepo)
+        case "checkout" if isSgitRepo => Checkout.checkout(arguments.inputArg, currRepo)
+        case "tag" if isSgitRepo => Tag.tag(arguments.inputArg, currRepo)
         case _ => println("Unknown command. Check your command or if your repository is indeed a sgit repo")}
     }
 

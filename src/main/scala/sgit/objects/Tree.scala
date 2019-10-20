@@ -10,10 +10,10 @@ case class Tree(sha: String, listOfBlob: List[Blob])
 
 object Tree{
 
-  def createTree(sha: String, listOfBlob: List[Blob],customDir: String = ""): Tree =
+  def createTree(sha: String, listOfBlob: List[Blob],userPath: String): Tree =
     {
       // We create our tree directory and retrieve the path of our tree file
-      val treeFile = ObjectApi.CreateObject("trees", sha, customDir)
+      val treeFile = ObjectApi.createObject("trees", sha, userPath)
       // We write each of our blob in the file
       listOfBlob.foreach(x => FileApi.utilWriter(treeFile, "blob " + x.sha + " " + x.content.getPath))
       // We return our tree

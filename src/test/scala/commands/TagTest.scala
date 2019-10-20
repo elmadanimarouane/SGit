@@ -10,8 +10,7 @@ import scala.reflect.io.Directory
 
 class TagTest extends FunSpec with BeforeAndAfter with Matchers{
   // We create a temporary directory that we will use for our test
-  val testDir = "/testDir"
-  val fullTestDirPath: String = System.getProperty("user.dir") + testDir
+  val fullTestDirPath: String = System.getProperty("user.dir") + "/testDir"
   val testDirFile: File = new File(fullTestDirPath)
   // We create a test file that we will use for our test
   val testFile = new File(fullTestDirPath + "/testFile")
@@ -19,10 +18,10 @@ class TagTest extends FunSpec with BeforeAndAfter with Matchers{
   before
   {
     testDirFile.mkdir()
-    Init.initSgitDir(testDir)
+    Init.initSgitDir(fullTestDirPath)
     testFile.createNewFile()
     FileApi.utilWriter(testFile.getPath,"Test")
-    Add.add(testFile, testDir)
+    Add.add(testFile, fullTestDirPath)
   }
 
   // After our test, we delete our test directory with everything inside of it
@@ -36,18 +35,18 @@ class TagTest extends FunSpec with BeforeAndAfter with Matchers{
     it("Should not create a tag if no commit where made")
     {
       // We try to create our tag
-      Tag.tag("Tag test",testDir)
+      Tag.tag("Tag test",fullTestDirPath)
       // We didn't make a single commit so we should have no tag created
-      Tag.getTags(testDir).isEmpty shouldBe true
+      Tag.getTags(fullTestDirPath).isEmpty shouldBe true
     }
     it("Should create a tag after a commit with the commit sha in it")
     {
       // We do a commit
-      Commit.commit(customDir = testDir)
+      Commit.commit(userPath = fullTestDirPath)
       // We create a tag
-      Tag.tag("Tag test", testDir)
+      Tag.tag("Tag test", fullTestDirPath)
       // We should have one tag now
-      Tag.getTags(testDir).nonEmpty shouldBe true
+      Tag.getTags(fullTestDirPath).nonEmpty shouldBe true
       // We get our tag
       val tagPath = fullTestDirPath + "/.sgit/refs/tags/Tag test"
       // We check if it is indeed a file
@@ -55,7 +54,7 @@ class TagTest extends FunSpec with BeforeAndAfter with Matchers{
       // We get its content
       val tagContent = FileApi.listFromFile(tagPath,0)
       // Its head should contain our commit sha
-      tagContent.head == Commit.getCommits(testDir).head shouldBe true
+      tagContent.head == Commit.getCommits(fullTestDirPath).head shouldBe true
     }
   }
 }

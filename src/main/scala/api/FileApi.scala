@@ -142,21 +142,17 @@ object FileApi {
     }
 
   // This method allows us to get a Set of the files kept in our Index file
-  def getListOfKeptFiles(customDir: String = ""): Set[File] = {
-    // We get the path of our project
-    val pathProject = System.getProperty("user.dir") + customDir
+  def getListOfKeptFiles(userPath: String): Set[File] = {
     // We get all of our path kept in our index file
-    val listOfPathFile = listFromFile(pathProject + "/.sgit/index",41)
+    val listOfPathFile = listFromFile(userPath + "/.sgit/index",41)
     listOfPathFile.map(x => new File(x)).toSet
   }
 
   // This method allows us to get a list of our SHA tracked
-  def getFullListOfKeptFiles(customDir: String = ""): List[String] =
+  def getFullListOfKeptFiles(userPath: String): List[String] =
     {
-      // We get the path of our project
-      val pathProject = System.getProperty("user.dir") + customDir
       // We get all of our SHA kept in our index file
-      FileApi.listFromFile(pathProject + "/.sgit/index", 0)
+      FileApi.listFromFile(userPath + "/.sgit/index", 0)
     }
 
   // This method allows us to clear a file
@@ -168,21 +164,19 @@ object FileApi {
     }
 
   // This method allows us to clean our work repository by deleting our tracked files and empty repos
-  def cleanWorkRepo(customDir: String = ""): Unit =
+  def cleanWorkRepo(userPath: String): Unit =
     {
-      // We get the path of our project
-      val projectPath = System.getProperty("user.dir") + customDir
       // We get the path of our tracked files located in our index file
-      val listFileIndex = FileApi.getFullListOfKeptFiles(customDir).map(x => x.substring(41))
+      val listFileIndex = FileApi.getFullListOfKeptFiles(userPath).map(x => x.substring(41))
       // We delete them
       listFileIndex.foreach(path => new File(path).delete())
       // If we have empty repo, we delete them aswell. First, we get our list of repository from our project and
       // sort them by the length of their path, the longer the deeper in our work repository
-      val listRepos = FileApi.getAllSubDir(new File(projectPath)).sortWith(_.getPath.length > _.getPath.length)
+      val listRepos = FileApi.getAllSubDir(new File(userPath)).sortWith(_.getPath.length > _.getPath.length)
       // We check if our repositories are empty or not. If it's the case, we delete it. Since our list in ordered by
       // the longest path, we are sure we won't miss any folders that may contain some empty folders
       listRepos.foreach(file => if(FileApi.isDirEmpty(file)) file.delete())
       // We clear our index file
-      clearFile(new File(projectPath + "/.sgit/index"))
+      clearFile(new File(userPath + "/.sgit/index"))
     }
 }
